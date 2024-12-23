@@ -8,6 +8,13 @@ const itemsRoutes = require("./routes/items");
 
 const app = express();
 
+app.use(
+    cors({
+      origin: process.env.ORIGIN,
+    //   credentials: true,
+    })
+  );
+
 const mongoURL =
   "mongodb+srv://finflow:finflow123@finflow-cluster.jwtny.mongodb.net/?retryWrites=true&w=majority&appName=FInflow-Cluster";
 
