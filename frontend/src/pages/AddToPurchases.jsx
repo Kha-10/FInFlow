@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { useNavigate } from "react-router-dom";
 
 const AddToPurchases = () => {
   const [transactions, setTransactions] = useState([]);
@@ -21,6 +22,9 @@ const AddToPurchases = () => {
     category: "all",
     type: "all",
   });
+
+  const navigate = useNavigate();
+
   const { toast } = useToast();
 
   const filteredTransactions = useMemo(() => {
@@ -142,12 +146,18 @@ const AddToPurchases = () => {
     setFilters(newFilters);
   };
 
+  const handleTabChange = (value) => {
+    if (value === "items") {
+      navigate("/purchases?sort=createdAt&sortDirection=desc");
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground antialiased">
       {/* <Header /> */}
       <main className="flex-1 relative">
         <div className="container mx-auto space-y-6 p-4 pb-20">
-          <Tabs defaultValue="purchases" className="w-full">
+          <Tabs defaultValue="purchases" onValueChange={handleTabChange} className="w-full">
             <TabsList className="grid h-10 items-center w-full grid-cols-4 rounded-lg">
               <TabsTrigger
                 value="purchases"
@@ -208,15 +218,6 @@ const AddToPurchases = () => {
                             items={items}
                           />
                         </div>
-                        {/* <div className="mt-4 border-t pt-4">
-                          <Button
-                            type="submit"
-                            form="transaction-form"
-                            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-                          >
-                            Add Purchase
-                          </Button>
-                        </div> */}
                       </div>
                     </SheetContent>
                   </Sheet>

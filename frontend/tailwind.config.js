@@ -12,8 +12,10 @@ export default {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+        btn :' #3b82f6',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
+        text : "#94A3B8",
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'

@@ -11,9 +11,9 @@ import {
   SheetContent,
   SheetTrigger,
   SheetTitle,
-  SheetHeader
+  SheetHeader,
 } from "@/components/ui/sheet";
-import { Plus,X} from "lucide-react";
+import { Plus, X } from "lucide-react";
 
 const ItemManagement = () => {
   const [items, setItems] = useState([]);
@@ -26,25 +26,35 @@ const ItemManagement = () => {
   const page = parseInt(searchQuery.get("page"))
     ? parseInt(searchQuery.get("page"))
     : 1;
+  const query = searchQuery.get("search") ? searchQuery.get("search") : "";
+  const sort = searchQuery.get("sort") ? searchQuery.get("sort") : "createdAt";
+  const sortDirection = searchQuery.get("sortDirection")
+    ? searchQuery.get("sortDirection")
+    : "desc";
+
+  const getItems = async () => {
+    try {
+      const response = await axios.get(
+        `/api/items?page=${page}&sort=${sort}&sortDirection=${sortDirection}${
+          query ? `&search=${query}` : ""
+        }`
+      );
+      if (response.status === 200) {
+        // setRecipes(response.data.data);
+        // setPagination(response.data.pagination);
+        console.log(response);
+        setItems(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    } finally {
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
-    const getItems = async () => {
-      try {
-        const response = await axios.get(`/api/items?page=${page}`);
-        if (response.status === 200) {
-          // setRecipes(response.data.data);
-          // setPagination(response.data.pagination);
-          console.log(response);
-          setItems(response.data.data);
-        }
-      } catch (error) {
-        console.error("Error fetching items:", error);
-      } finally {
-        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-      }
-    };
     getItems();
-  }, [page]);
+  }, [page, query,sort,sortDirection]);
 
   const form = useForm({
     defaultValues: {
@@ -55,8 +65,6 @@ const ItemManagement = () => {
   });
 
   async function onSubmit(values) {
-    // onAddItem(values);
-    console.log("kk");
     try {
       const res = await axios.post("/api/items", values);
       if (res.status === 200) {

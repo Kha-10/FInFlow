@@ -287,9 +287,6 @@ export default function TransactionForm({ onSubmit, categories }) {
                               mode="single"
                               selected={field.value}
                               onSelect={field.onChange}
-                              // disabled={(date) =>
-                              //   date > new Date() || date < new Date("1900-01-01")
-                              // }
                               initialFocus
                               classNames={{
                                 day_selected:
@@ -461,7 +458,6 @@ export default function TransactionForm({ onSubmit, categories }) {
                           append({
                             name: "",
                             price: 0,
-                            pricePerUnit: false,
                             pricePerUnit: false,
                           })
                         }

@@ -1,14 +1,22 @@
 const Item = require("../models/Item");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const ItemController = {
   index: async (req, res) => {
     let limit = 10;
     let page = req.query.page || 1;
-    let items = await Item.find()
+    let searchQuery = req.query.search || "";
+    const searchCondition = searchQuery
+      ? { name: { $regex: searchQuery, $options: "i" } }
+      : {};
+    const sort = req.query.sort || "createdAt";
+    const sortDirection = req.query.sortDirection === "asc" ? 1 : -1;
+    const sortObject =
+      sort === "name" ? { name: sortDirection } : { createdAt: sortDirection };
+    let items = await Item.find(searchCondition)
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort(sortObject);
 
     let totalItemCount = await Item.countDocuments();
 
