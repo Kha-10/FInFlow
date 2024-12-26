@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import ItemForm from "./ItemForm";
 import ItemList from "./ItemList";
+import PaginationControls from "./PaginationControls";
 import axios from "@/helper/axios";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +19,7 @@ import { Plus, X } from "lucide-react";
 const ItemManagement = () => {
   const [items, setItems] = useState([]);
   const [isItemSheetOpen, setIsItemSheetOpen] = useState(false);
+  const [pagination, setPagination] = useState([]);
 
   const { toast } = useToast();
 
@@ -26,7 +28,7 @@ const ItemManagement = () => {
   const page = parseInt(searchQuery.get("page"))
     ? parseInt(searchQuery.get("page"))
     : 1;
-  const query = searchQuery.get("search") ? searchQuery.get("search") : "";
+  const query = searchQuery.get("search");
   const sort = searchQuery.get("sort") ? searchQuery.get("sort") : "createdAt";
   const sortDirection = searchQuery.get("sortDirection")
     ? searchQuery.get("sortDirection")
@@ -41,9 +43,9 @@ const ItemManagement = () => {
       );
       if (response.status === 200) {
         // setRecipes(response.data.data);
-        // setPagination(response.data.pagination);
         console.log(response);
         setItems(response.data.data);
+        setPagination(response.data.links);
       }
     } catch (error) {
       console.error("Error fetching items:", error);
@@ -54,7 +56,7 @@ const ItemManagement = () => {
 
   useEffect(() => {
     getItems();
-  }, [page, query,sort,sortDirection]);
+  }, [page, query, sort, sortDirection]);
 
   const form = useForm({
     defaultValues: {
@@ -118,6 +120,7 @@ const ItemManagement = () => {
           </div>
         </SheetContent>
       </Sheet>
+      {!!pagination && <PaginationControls pagination={pagination} currentPage={page} query={query} sort={sort} sortDirection={sortDirection}/>}
     </>
   );
 };

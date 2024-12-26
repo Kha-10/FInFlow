@@ -23,6 +23,7 @@ const ItemForm = ({ form, onSubmit }) => {
               <FormLabel>Item Name</FormLabel>
               <FormControl>
                 <Input
+                  className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
                   {...field}
                   {...form.register("name", {
                     required: {
@@ -31,7 +32,6 @@ const ItemForm = ({ form, onSubmit }) => {
                     },
                   })}
                   placeholder="Enter item name"
-                  className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0 "
                 />
               </FormControl>
               <FormMessage />
@@ -75,4 +75,4 @@ const ItemForm = ({ form, onSubmit }) => {
   );
 };
 
-export default ItemForm
+export default ItemForm;

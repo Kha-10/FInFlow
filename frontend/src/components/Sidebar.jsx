@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, ShoppingBag } from "lucide-react";
+import { Home, ShoppingCart, LayoutDashboard } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
@@ -8,8 +8,8 @@ const Sidebar = () => {
   const isActive = (path) => location.pathname === path;
 
   const menuItems = [
-    { icon: Home, label: "Home", path: "/" },
-    { icon: ShoppingBag, label: "Purchases", path: "/purchases" },
+    { icon:LayoutDashboard , label: "Dashboard", path: "/" },
+    { icon: ShoppingCart, label: "Purchases", path: "/purchases" },
   ];
 
   return (
@@ -19,18 +19,22 @@ const Sidebar = () => {
         {/* <div className="p-4">
           <h1 className="text-xl font-bold">Purchase Tracker</h1>
         </div> */}
-        <nav className="flex-1">
+        <nav className="flex-1 py-2 px-3 space-y-1">
           {menuItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center px-4 py-3 ${
+              className={`flex items-center px-4 py-3 rounded-lg ${
                 isActive(item.path)
                   ? "bg-muted text-btn"
                   : "hover:bg-primary-foreground"
               }`}
             >
-              <item.icon className="w-5 h-5 mr-3" />
+              <item.icon
+                className={`w-5 h-5 mr-3 ${
+                  isActive(item.path) ? "fill-blue-500" : ""
+                }`}
+              />
               <span>{item.label}</span>
             </Link>
           ))}
@@ -47,10 +51,14 @@ const Sidebar = () => {
               className={`w-full flex flex-col items-center py-3 ${
                 isActive(item.path)
                   ? "text-btn"
-                  : "hover:bg-primary-foreground"
+                  : "hover:bg-primary-foreground text-muted-foreground "
               }`}
             >
-              <item.icon className="w-5 h-5 mb-1" />
+              <item.icon
+                className={`w-5 h-5 mb-1 ${
+                  isActive(item.path) ? "fill-blue-500" : ""
+                }`}
+              />
               <span className="text-xs">{item.label}</span>
             </Link>
           ))}

@@ -154,7 +154,7 @@ export default function ItemList({ items, setItems }) {
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search purchases..."
-                className="pl-8 border-input w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0 focus:border-input focus:ring-ring"
+                className="pl-8 border-input w-full focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0 focus:border-input focus:ring-ring"
                 value={search}
                 onChange={handleChange}
               />
@@ -175,7 +175,7 @@ export default function ItemList({ items, setItems }) {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="gap-2 bg-primary-foreground"
+                    className="gap-2"
                   >
                     Sort
                     <ChevronDown className="h-4 w-4" />
@@ -183,7 +183,7 @@ export default function ItemList({ items, setItems }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className="bg-primary-foreground"
+                  className=""
                 >
                   <div className="p-2">
                     <RadioGroup
@@ -274,113 +274,10 @@ export default function ItemList({ items, setItems }) {
             </div>
           </div>
           <ScrollArea>
-            {/* <Table>
-              <TableCaption>A list of your recent items.</TableCaption>
-              <TableHeader>
-                <TableRow className="grid grid-cols-2">
-                  <TableHead>Name</TableHead>
-                  <TableHead>Default Quantity</TableHead>
-                  <TableHead>Default Price</TableHead>
-                  <TableHead className="">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {items.map((item) => (
-                  <TableRow key={item._id} className="grid grid-cols-2">
-                    <TableCell className="truncate">{item.name}</TableCell>
-                    <TableCell>{item.defaultQuantity}</TableCell>
-                    <TableCell>${item.defaultPrice.toFixed(2)}</TableCell>
-                    <TableCell className="">
-                      <Dialog
-                        open={isDialogOpen}
-                        onOpenChange={setIsDialogOpen}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setEditingItem(item);
-                              editForm.setValue("name", item.name);
-                              setIsDialogOpen(true);
-                            }}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="w-[310px] sm:w-[400px] md:w-full rounded-lg sm:rounded-lg">
-                          <DialogHeader>
-                            <DialogTitle>Edit Item</DialogTitle>
-                          </DialogHeader>
-                          <Form {...editForm}>
-                            <form
-                              onSubmit={editForm.handleSubmit(onEdit)}
-                              className="space-y-4"
-                            >
-                              <FormField
-                                control={editForm.control}
-                                name="name"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Item Name</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={editForm.control}
-                                name="defaultQuantity"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Default Quantity</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={editForm.control}
-                                name="defaultPrice"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Default Price</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        step="0.01"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <Button className=" bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">Update Item</Button>
-                            </form>
-                          </Form>
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onDeleteItem(item._id)}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table> */}
             <div className="space-y-2 p-4">
               {items.map((item) => (
                 <Card key={item._id} className="overflow-hidden">
-                  <CardContent className="p-0 bg-background">
+                  <CardContent className="p-0 bg-card">
                     <div className="flex items-center justify-between p-4">
                       <div>
                         <h3 className="font-semibold">{item.name}</h3>

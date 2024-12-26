@@ -26,6 +26,8 @@ const ItemController = {
       nextPage: totalPagesCount == page ? false : true,
       previousPage: page == 1 ? false : true,
       currentPage: page,
+      totalPages : totalPagesCount,
+      limit : limit,
       loopableLinks: [],
     };
 
@@ -38,7 +40,6 @@ const ItemController = {
       links,
       data: items,
     };
-    console.log(response);
     return res.json(response);
   },
   store: async (req, res) => {
