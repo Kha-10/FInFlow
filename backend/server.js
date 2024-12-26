@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const itemsRoutes = require("./routes/items");
+const categoriesRoutes = require("./routes/categories");
 
 
 const app = express();
@@ -34,3 +35,5 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/items", itemsRoutes);
+
+app.use("/api/categories", categoriesRoutes);

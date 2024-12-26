@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import ItemForm from "./ItemForm";
-import ItemList from "./ItemList";
+import CategoryForm from "./CategoryForm";
+import CategoryList from "./CategoryList";
 import PaginationControls from "../PaginationControls";
 import axios from "@/helper/axios";
 import { useForm } from "react-hook-form";
@@ -16,9 +16,9 @@ import {
 } from "@/components/ui/sheet";
 import { Plus, X } from "lucide-react";
 
-const ItemManagement = () => {
-  const [items, setItems] = useState([]);
-  const [isItemSheetOpen, setIsItemSheetOpen] = useState(false);
+export default function CategoryManagement() {
+  const [categories, setCategories] = useState([]);
+  const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [pagination, setPagination] = useState([]);
 
   const { toast } = useToast();
@@ -37,14 +37,14 @@ const ItemManagement = () => {
   const getItems = async () => {
     try {
       const response = await axios.get(
-        `/api/items?page=${page}&sort=${sort}&sortDirection=${sortDirection}${
+        `/api/categories?page=${page}&sort=${sort}&sortDirection=${sortDirection}${
           query ? `&search=${query}` : ""
         }`
       );
       if (response.status === 200) {
         // setRecipes(response.data.data);
         console.log(response);
-        setItems(response.data.data);
+        setCategories(response.data.data);
         setPagination(response.data.links);
       }
     } catch (error) {
@@ -68,24 +68,24 @@ const ItemManagement = () => {
 
   async function onSubmit(values) {
     try {
-      const res = await axios.post("/api/items", values);
+      const res = await axios.post("/api/categories", values);
       if (res.status === 200) {
         form.reset();
         toast({
-          title: "Item added",
-          description: `${values.name} has been added to your items list.`,
+          title: "Category added",
+          description: `${values.name} has been added to your categories list.`,
           duration: 3000,
         });
-        setItems((prev) => [values, ...prev]);
-        setIsItemSheetOpen(false);
+        setCategories((prev) => [values, ...prev]);
+        setIsCategorySheetOpen(false);
       }
     } catch (error) {
-      console.error("Error posting item:", error);
+      console.error("Error posting category:", error);
       toast({
         title: "Error",
         description: error.response.data
           ? error.response.data.msg
-          : "There was an issue adding the item. Please try again.",
+          : "There was an issue adding the category. Please try again.",
         duration: 3000,
         status: "error",
       });
@@ -94,8 +94,8 @@ const ItemManagement = () => {
 
   return (
     <>
-      <ItemList items={items} setItems={setItems} />
-      <Sheet open={isItemSheetOpen} onOpenChange={setIsItemSheetOpen}>
+      <CategoryList categories={categories} setCategories={setCategories} />
+      <Sheet open={isCategorySheetOpen} onOpenChange={setIsCategorySheetOpen}>
         <SheetTrigger asChild>
           <Button
             className="fixed bottom-20 md:bottom-4 right-4 h-14 w-14 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 text-white transition duration-300 ease-in-out transform hover:scale-105"
@@ -111,18 +111,24 @@ const ItemManagement = () => {
           <div className="h-full flex flex-col">
             <SheetHeader className="relative border-b border-border pb-4">
               <SheetTitle className="text-lg font-semibold text-foreground">
-                Add New Item
+                Add New Category
               </SheetTitle>
             </SheetHeader>
             <div className="flex-grow overflow-auto space-y-6 px-1 pt-6">
-              <ItemForm form={form} onSubmit={onSubmit} />
+              <CategoryForm form={form} onSubmit={onSubmit} />
             </div>
           </div>
         </SheetContent>
       </Sheet>
-      {!!pagination && <PaginationControls pagination={pagination} currentPage={page} query={query} sort={sort} sortDirection={sortDirection}/>}
+      {!!pagination && (
+        <PaginationControls
+          pagination={pagination}
+          currentPage={page}
+          query={query}
+          sort={sort}
+          sortDirection={sortDirection}
+        />
+      )}
     </>
   );
-};
-
-export default ItemManagement;
+}

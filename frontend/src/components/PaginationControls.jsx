@@ -20,7 +20,6 @@ export default function PaginationControls({
   const navigate = useNavigate();
 
   const handlePageChange = (page) => {
-    console.log("mmsp");
     const searchParams = new URLSearchParams();
     searchParams.set("page", page);
     searchParams.set("sort", sort);

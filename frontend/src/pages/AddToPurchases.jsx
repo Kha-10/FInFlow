@@ -3,6 +3,7 @@ import TransactionForm from "@/components/TransactionForm";
 import TransactionList from "@/components/TransactionList";
 import CategoryForm from "@/components/CategoryForm";
 import ItemManagement from "@/components/Items/ItemManagement";
+import CategoryManagement from "@/components/Categories/CategoryManagement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -225,7 +226,7 @@ const AddToPurchases = () => {
               </div>
             </TabsContent>
             <TabsContent value="categories">
-              <div className="space-y-6">
+              {/* <div className="space-y-6">
                 <div>
                   <h2 className="mb-4 text-xl font-semibold">
                     Add New Category
@@ -237,7 +238,8 @@ const AddToPurchases = () => {
                     onDelete={handleDeleteCategory}
                   />
                 </div>
-              </div>
+              </div> */}
+              <CategoryManagement/>
             </TabsContent>
             <TabsContent value="items">
               <ItemManagement/>

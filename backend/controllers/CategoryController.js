@@ -1,7 +1,7 @@
-const Item = require("../models/Item");
+const Category = require("../models/Category");
 const mongoose = require("mongoose");
 
-const ItemController = {
+const CategoryController = {
   index: async (req, res) => {
     let limit = 10;
     let page = req.query.page || 1;
@@ -13,14 +13,14 @@ const ItemController = {
     const sortDirection = req.query.sortDirection === "asc" ? 1 : -1;
     const sortObject =
       sort === "name" ? { name: sortDirection } : { createdAt: sortDirection };
-    let items = await Item.find(searchCondition)
+    let items = await Category.find(searchCondition)
       .skip((page - 1) * limit)
       .limit(limit)
       .sort(sortObject);
 
-    let totalItemCount = await Item.countDocuments();
+    let totalCategoryCount = await Category.countDocuments();
 
-    let totalPagesCount = Math.ceil(totalItemCount / limit);
+    let totalPagesCount = Math.ceil(totalCategoryCount / limit);
 
     let links = {
       nextPage: totalPagesCount == page ? false : true,
@@ -45,17 +45,17 @@ const ItemController = {
   store: async (req, res) => {
     const { name } = req.body;
     try {
-      const existingItem = await Item.findOne({ name });
+      const existingCategory = await Category.findOne({ name });
 
-      if (existingItem) {
-        return res.status(409).json({ msg: "Item name already exists" });
+      if (existingCategory) {
+        return res.status(409).json({ msg: "Category name already exists" });
       }
 
-      const item = await Item.create({ name });
+      const category = await Category.create({ name });
 
-      return res.json(item);
+      return res.json(category);
     } catch (error) {
-      console.error("Error creating Item:", error);
+      console.error("Error creating category:", error);
       return res.status(500).json({ msg: "Internet Server error" });
     }
   },
@@ -65,11 +65,11 @@ const ItemController = {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ msg: "Not a valid id" });
       }
-      let item = await Item.findById(id);
-      if (!item) {
-        return res.status(404).json({ msg: "Item not found" });
+      let category = await Category.findById(id);
+      if (!category) {
+        return res.status(404).json({ msg: "Category not found" });
       }
-      return res.json(item);
+      return res.json(category);
     } catch (e) {
       return res.status(500).json({ msg: "Internet server error" });
     }
@@ -80,11 +80,11 @@ const ItemController = {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ msg: "Not a valid id" });
       }
-      let item = await Item.findByIdAndDelete(id);
-      if (!item) {
-        return res.status(404).json({ msg: "Item not found" });
+      let category = await Category.findByIdAndDelete(id);
+      if (!category) {
+        return res.status(404).json({ msg: "Category not found" });
       }
-      return res.json(item);
+      return res.json(category);
     } catch (e) {
       return res.status(500).json({ msg: "Internet server error" });
     }
@@ -95,17 +95,17 @@ const ItemController = {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ msg: "Not a valid id" });
       }
-      let item = await Item.findByIdAndUpdate(id, {
+      let category = await Category.findByIdAndUpdate(id, {
         ...req.body,
       });
-      if (!item) {
-        return res.status(404).json({ msg: "Item not found" });
+      if (!category) {
+        return res.status(404).json({ msg: "Category not found" });
       }
-      return res.json(item);
+      return res.json(category);
     } catch (e) {
       return res.status(500).json({ msg: "Internet server error" });
     }
   },
 };
 
-module.exports = ItemController;
+module.exports = CategoryController;

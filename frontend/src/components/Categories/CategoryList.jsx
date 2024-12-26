@@ -43,8 +43,8 @@ import axios from "@/helper/axios";
 import debounce from "lodash.debounce";
 import { useSearchParams } from "react-router-dom";
 
-export default function ItemList({ items, setItems }) {
-  const [editingItemId, setEditingItemId] = useState(null);
+export default function CategoryList({ categories, setCategories }) {
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [openDialogId, setOpenDialogId] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -62,10 +62,10 @@ export default function ItemList({ items, setItems }) {
     },
   });
 
-  const handleOpenDialog = (itemId, item) => {
-    setOpenDialogId(itemId);
-    setEditingItemId(itemId);
-    editForm.setValue("name", item.name);
+  const handleOpenDialog = (categoryId, category) => {
+    setOpenDialogId(categoryId);
+    setEditingCategoryId(categoryId);
+    editForm.setValue("name", category.name);
   };
 
   const handleCloseDialog = () => {
@@ -74,28 +74,31 @@ export default function ItemList({ items, setItems }) {
 
   async function onEdit(values) {
     try {
-      const res = await axios.patch(`/api/items/${editingItemId}`, values);
+      const res = await axios.patch(
+        `/api/categories/${editingCategoryId}`,
+        values
+      );
       if (res.status === 200) {
         toast({
-          title: "Item updated",
-          description: "The item has been updated successfully.",
+          title: "Category updated",
+          description: "The category has been updated successfully.",
           duration: 3000,
         });
-        setItems((prevItems) =>
+        setCategories((prevItems) =>
           prevItems.map((item) =>
-            item._id === editingItemId ? { ...item, ...values } : item
+            item._id === editingCategoryId ? { ...item, ...values } : item
           )
         );
         editForm.reset();
         handleCloseDialog();
       }
     } catch (error) {
-      console.error("Error updating item:", error);
+      console.error("Error updating category:", error);
       toast({
         title: "Error",
         description: error.response.data
           ? error.response.data.msg
-          : "There was an issue updating the item. Please try again.",
+          : "There was an issue updating the category. Please try again.",
         status: "error",
       });
     }
@@ -103,22 +106,24 @@ export default function ItemList({ items, setItems }) {
 
   async function onDeleteItem(id) {
     try {
-      const res = await axios.delete(`/api/items/${id}`);
+      const res = await axios.delete(`/api/categories/${id}`);
       if (res.status === 200) {
         toast({
-          title: "Item deleted",
-          description: "The item has been deleted successfully.",
+          title: "Category deleted",
+          description: "The category has been deleted successfully.",
           duration: 3000,
         });
-        setItems((prevItems) => prevItems.filter((item) => item._id !== id));
+        setCategories((prevItems) =>
+          prevItems.filter((item) => item._id !== id)
+        );
       }
     } catch (error) {
-      console.error("Error deleting item:", error);
+      console.error("Error deleting category:", error);
       toast({
         title: "Error",
         description: error.response.data
           ? error.response.data.msg
-          : "There was an issue deleting the item. Please try again.",
+          : "There was an issue deleting the category. Please try again.",
         status: "error",
       });
     }
@@ -152,13 +157,11 @@ export default function ItemList({ items, setItems }) {
     setSearchParams(searchParams);
   };
 
-  console.log(openDialogId);
-
   return (
     <div className="space-y-6 pt-3">
       <Card>
         <CardContent className="pt-6">
-          <h3 className="text-lg font-semibold mb-4">Item List</h3>
+          <h3 className="text-lg font-semibold mb-4">Category List</h3>
           <div className="px-4 flex flex-col sm:flex-row gap-4 justify-between">
             <div className="relative flex-grow">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -279,17 +282,16 @@ export default function ItemList({ items, setItems }) {
           </div>
           <ScrollArea>
             <div className="space-y-2 p-4">
-              {items.map((item) => (
-                <Card key={item._id} className="overflow-hidden">
+              {categories.map((category) => (
+                <Card key={category._id} className="overflow-hidden">
                   <CardContent className="p-0 bg-card">
                     <div className="flex items-center justify-between p-4">
                       <div>
-                        <h3 className="font-semibold">{item.name}</h3>
+                        <h3 className="font-semibold">{category.name}</h3>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Dialog
-
-                          open={openDialogId === item._id}
+                          open={openDialogId === category._id}
                           onOpenChange={(isOpen) => {
                             if (!isOpen) {
                               handleCloseDialog();
@@ -300,12 +302,7 @@ export default function ItemList({ items, setItems }) {
                             <Button
                               variant="ghost"
                               size="icon"
-                              //   onClick={() => {
-                              //     setEditingItem(item);
-                              //     editForm.setValue("name", item.name);
-                              //     setIsDialogOpen(true);
-                              //   }}
-                              onClick={() => handleOpenDialog(item._id, item)}
+                              onClick={() => handleOpenDialog(category._id, category)}
                               className="text-purple-600 hover:text-purple-800 hover:bg-purple-100"
                             >
                               <Pencil className="h-4 w-4" />
@@ -313,7 +310,7 @@ export default function ItemList({ items, setItems }) {
                           </DialogTrigger>
                           <DialogContent className="w-[310px] sm:w-[400px] md:w-full rounded-lg sm:rounded-lg">
                             <DialogHeader>
-                              <DialogTitle>Edit Item</DialogTitle>
+                              <DialogTitle>Edit Category</DialogTitle>
                               <DialogDescription className="hidden"></DialogDescription>
                             </DialogHeader>
                             <Form {...editForm}>
@@ -326,7 +323,7 @@ export default function ItemList({ items, setItems }) {
                                   name="name"
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel>Item Name</FormLabel>
+                                      <FormLabel>category Name</FormLabel>
                                       <FormControl>
                                         <Input
                                           {...field}
@@ -337,11 +334,8 @@ export default function ItemList({ items, setItems }) {
                                     </FormItem>
                                   )}
                                 />
-                                <Button
-                                  type="submit"
-                                  className=" bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md"
-                                >
-                                  Update Item
+                                <Button className=" bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
+                                  Update category
                                 </Button>
                               </form>
                             </Form>
@@ -350,7 +344,7 @@ export default function ItemList({ items, setItems }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => onDeleteItem(item._id)}
+                          onClick={() => onDeleteItem(category._id)}
                           className="text-pink-600 hover:text-pink-800 hover:bg-pink-100"
                         >
                           <Trash2 className="h-4 w-4" />
