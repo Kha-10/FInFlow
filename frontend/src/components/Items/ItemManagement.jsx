@@ -4,8 +4,6 @@ import ItemForm from "./ItemForm";
 import ItemList from "./ItemList";
 import PaginationControls from "../PaginationControls";
 import axios from "@/helper/axios";
-import { useForm } from "react-hook-form";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,15 +11,14 @@ import {
   SheetTrigger,
   SheetTitle,
   SheetHeader,
+  SheetDescription
 } from "@/components/ui/sheet";
 import { Plus, X } from "lucide-react";
 
-const ItemManagement = () => {
+export default function ItemManagement() {
   const [items, setItems] = useState([]);
   const [isItemSheetOpen, setIsItemSheetOpen] = useState(false);
   const [pagination, setPagination] = useState([]);
-
-  const { toast } = useToast();
 
   const location = useLocation();
   const searchQuery = new URLSearchParams(location.search);
@@ -42,7 +39,6 @@ const ItemManagement = () => {
         }`
       );
       if (response.status === 200) {
-        // setRecipes(response.data.data);
         console.log(response);
         setItems(response.data.data);
         setPagination(response.data.links);
@@ -57,40 +53,6 @@ const ItemManagement = () => {
   useEffect(() => {
     getItems();
   }, [page, query, sort, sortDirection]);
-
-  const form = useForm({
-    defaultValues: {
-      name: "",
-      // defaultQuantity: "1",
-      // defaultPrice: 0,
-    },
-  });
-
-  async function onSubmit(values) {
-    try {
-      const res = await axios.post("/api/items", values);
-      if (res.status === 200) {
-        form.reset();
-        toast({
-          title: "Item added",
-          description: `${values.name} has been added to your items list.`,
-          duration: 3000,
-        });
-        setItems((prev) => [values, ...prev]);
-        setIsItemSheetOpen(false);
-      }
-    } catch (error) {
-      console.error("Error posting item:", error);
-      toast({
-        title: "Error",
-        description: error.response.data
-          ? error.response.data.msg
-          : "There was an issue adding the item. Please try again.",
-        duration: 3000,
-        status: "error",
-      });
-    }
-  }
 
   return (
     <>
@@ -113,16 +75,26 @@ const ItemManagement = () => {
               <SheetTitle className="text-lg font-semibold text-foreground">
                 Add New Item
               </SheetTitle>
+              <SheetDescription className="hidden"></SheetDescription>
             </SheetHeader>
             <div className="flex-grow overflow-auto space-y-6 px-1 pt-6">
-              <ItemForm form={form} onSubmit={onSubmit} />
+              <ItemForm
+                setItems={setItems}
+                setIsItemSheetOpen={setIsItemSheetOpen}
+              />
             </div>
           </div>
         </SheetContent>
       </Sheet>
-      {!!pagination && <PaginationControls pagination={pagination} currentPage={page} query={query} sort={sort} sortDirection={sortDirection}/>}
+      {!!pagination && pagination.totalPages > 1 && (
+        <PaginationControls
+          pagination={pagination}
+          currentPage={page}
+          query={query}
+          sort={sort}
+          sortDirection={sortDirection}
+        />
+      )}
     </>
   );
-};
-
-export default ItemManagement;
+}

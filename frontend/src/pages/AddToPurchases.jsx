@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from "react";
-import TransactionForm from "@/components/TransactionForm";
-import TransactionList from "@/components/TransactionList";
+import React, { useState, useMemo, useEffect } from "react";
+import TransactionForm from "@/components/Transactions/TransactionForm";
+import TransactionList from "@/components/Transactions/TransactionList";
 import CategoryForm from "@/components/CategoryForm";
 import ItemManagement from "@/components/Items/ItemManagement";
 import CategoryManagement from "@/components/Categories/CategoryManagement";
+import TransactionManagement from "@/components/Transactions/TransactionManagement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -147,18 +148,24 @@ const AddToPurchases = () => {
     setFilters(newFilters);
   };
 
-  const handleTabChange = (value) => {
-    if (value === "items") {
-      navigate("/purchases?sort=createdAt&sortDirection=desc");
-    }
+  const handleTabChange = () => {
+    navigate("/purchases?sort=createdAt&sortDirection=desc");
   };
+
+  useEffect(() => {
+    navigate("/purchases?sort=createdAt&sortDirection=desc", { replace: true });
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground antialiased">
       {/* <Header /> */}
       <main className="flex-1 relative">
         <div className="container mx-auto space-y-6 p-4 pb-20">
-          <Tabs defaultValue="purchases" onValueChange={handleTabChange} className="w-full">
+          <Tabs
+            defaultValue="purchases"
+            onValueChange={handleTabChange}
+            className="w-full"
+          >
             <TabsList className="grid h-10 items-center w-full grid-cols-4 rounded-lg">
               <TabsTrigger
                 value="purchases"
@@ -186,63 +193,13 @@ const AddToPurchases = () => {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="purchases">
-              <div className="space-y-6">
-                <div>
-                  <h2 className="mb-4 text-xl font-semibold">
-                    Recent Purchases
-                  </h2>
-                  <TransactionList
-                    transactions={filteredTransactions}
-                    onUpdate={handleUpdateTransaction}
-                    onDelete={handleDeleteTransaction}
-                    categories={categories}
-                    onFilter={handleFilterChange}
-                  />
-                  <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                    <SheetTrigger asChild>
-                      <Button
-                        className="fixed bottom-20 md:bottom-4 right-4 h-14 w-14 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 text-white transition duration-300 ease-in-out transform hover:scale-105"
-                        size="icon"
-                      >
-                        <Plus className="h-6 w-6" />
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="bottom" className="h-[90vh] rounded-t-[20px] sm:rounded-t-[30px]">
-                      <div className="h-full flex flex-col">
-                        <h2 className="text-xl font-semibold mb-4">
-                          Add New Purchase
-                        </h2>
-                        <div className="flex-grow overflow-auto">
-                          <TransactionForm
-                            onSubmit={handleAddTransaction}
-                            categories={categories}
-                            items={items}
-                          />
-                        </div>
-                      </div>
-                    </SheetContent>
-                  </Sheet>
-                </div>
-              </div>
+              <TransactionManagement />
             </TabsContent>
             <TabsContent value="categories">
-              {/* <div className="space-y-6">
-                <div>
-                  <h2 className="mb-4 text-xl font-semibold">
-                    Add New Category
-                  </h2>
-                  <CategoryForm
-                    categories={categories}
-                    onSubmit={handleAddCategory}
-                    onUpdate={handleUpdateCategory}
-                    onDelete={handleDeleteCategory}
-                  />
-                </div>
-              </div> */}
-              <CategoryManagement/>
+              <CategoryManagement />
             </TabsContent>
             <TabsContent value="items">
-              <ItemManagement/>
+              <ItemManagement />
             </TabsContent>
             <TabsContent value="reports">
               <div className="space-y-6">

@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const itemsRoutes = require("./routes/items");
 const categoriesRoutes = require("./routes/categories");
-
+const purchasesRoutes = require("./routes/purchases");
 
 const app = express();
 
@@ -37,3 +37,5 @@ app.get("/", (req, res) => {
 app.use("/api/items", itemsRoutes);
 
 app.use("/api/categories", categoriesRoutes);
+
+app.use("/api/purchases", purchasesRoutes);

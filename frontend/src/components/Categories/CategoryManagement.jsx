@@ -4,8 +4,6 @@ import CategoryForm from "./CategoryForm";
 import CategoryList from "./CategoryList";
 import PaginationControls from "../PaginationControls";
 import axios from "@/helper/axios";
-import { useForm } from "react-hook-form";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,6 +11,7 @@ import {
   SheetTrigger,
   SheetTitle,
   SheetHeader,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { Plus, X } from "lucide-react";
 
@@ -20,8 +19,6 @@ export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [pagination, setPagination] = useState([]);
-
-  const { toast } = useToast();
 
   const location = useLocation();
   const searchQuery = new URLSearchParams(location.search);
@@ -34,7 +31,7 @@ export default function CategoryManagement() {
     ? searchQuery.get("sortDirection")
     : "desc";
 
-  const getItems = async () => {
+  const getCategories = async () => {
     try {
       const response = await axios.get(
         `/api/categories?page=${page}&sort=${sort}&sortDirection=${sortDirection}${
@@ -55,42 +52,8 @@ export default function CategoryManagement() {
   };
 
   useEffect(() => {
-    getItems();
+    getCategories();
   }, [page, query, sort, sortDirection]);
-
-  const form = useForm({
-    defaultValues: {
-      name: "",
-      // defaultQuantity: "1",
-      // defaultPrice: 0,
-    },
-  });
-
-  async function onSubmit(values) {
-    try {
-      const res = await axios.post("/api/categories", values);
-      if (res.status === 200) {
-        form.reset();
-        toast({
-          title: "Category added",
-          description: `${values.name} has been added to your categories list.`,
-          duration: 3000,
-        });
-        setCategories((prev) => [values, ...prev]);
-        setIsCategorySheetOpen(false);
-      }
-    } catch (error) {
-      console.error("Error posting category:", error);
-      toast({
-        title: "Error",
-        description: error.response.data
-          ? error.response.data.msg
-          : "There was an issue adding the category. Please try again.",
-        duration: 3000,
-        status: "error",
-      });
-    }
-  }
 
   return (
     <>
@@ -113,14 +76,18 @@ export default function CategoryManagement() {
               <SheetTitle className="text-lg font-semibold text-foreground">
                 Add New Category
               </SheetTitle>
+              <SheetDescription className="hidden"></SheetDescription>
             </SheetHeader>
             <div className="flex-grow overflow-auto space-y-6 px-1 pt-6">
-              <CategoryForm form={form} onSubmit={onSubmit} />
+              <CategoryForm
+                setCategories={setCategories}
+                setIsCategorySheetOpen={setIsCategorySheetOpen}
+              />
             </div>
           </div>
         </SheetContent>
       </Sheet>
-      {!!pagination && (
+      {!!pagination && pagination.totalPages > 1 && (
         <PaginationControls
           pagination={pagination}
           currentPage={page}

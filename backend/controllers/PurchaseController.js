@@ -1,9 +1,10 @@
+const Purchase = require("../models/Purchase");
 const Category = require("../models/Category");
 const mongoose = require("mongoose");
 
-const CategoryController = {
+const PurchaseController = {
   index: async (req, res) => {
-    let limit = 10;
+    let limit = 6;
     let page = req.query.page || 1;
     let searchQuery = req.query.search || "";
     const searchCondition = searchQuery
@@ -13,21 +14,24 @@ const CategoryController = {
     const sortDirection = req.query.sortDirection === "asc" ? 1 : -1;
     const sortObject =
       sort === "name" ? { name: sortDirection } : { createdAt: sortDirection };
-    let categories = await Category.find(searchCondition)
+    let purchases = await Purchase.find(searchCondition)
+      .populate("category")
       .skip((page - 1) * limit)
       .limit(limit)
       .sort(sortObject);
 
-    let totalCategoryCount = await Category.countDocuments();
+    let totalPurchaseCount = await Purchase.countDocuments();
 
-    let totalPagesCount = Math.ceil(totalCategoryCount / limit);
+    let totalPagesCount = Math.ceil(totalPurchaseCount / limit);
+
+    let categories = await Category.find(searchCondition);
 
     let links = {
       nextPage: totalPagesCount == page ? false : true,
       previousPage: page == 1 ? false : true,
       currentPage: page,
-      totalPages : totalPagesCount,
-      limit : limit,
+      totalPages: totalPagesCount,
+      limit: limit,
       loopableLinks: [],
     };
 
@@ -38,24 +42,36 @@ const CategoryController = {
 
     let response = {
       links,
-      data: categories,
+      data: { purchases: purchases, categories: categories },
     };
     return res.json(response);
   },
   store: async (req, res) => {
-    const { name } = req.body;
+    const {
+      purchaseType,
+      transactionType,
+      category,
+      description,
+      date,
+      amount,
+    } = req.body;
     try {
-      const existingCategory = await Category.findOne({ name });
+      const purchase = await Purchase.create({
+        purchaseType,
+        transactionType,
+        category,
+        description,
+        date,
+        amount,
+      });
 
-      if (existingCategory) {
-        return res.status(409).json({ msg: "Category name already exists" });
-      }
+      const populatedPurchase = await Purchase.findById(purchase._id).populate(
+        "category"
+      );
 
-      const category = await Category.create({ name });
-
-      return res.json(category);
+      return res.json(populatedPurchase);
     } catch (error) {
-      console.error("Error creating category:", error);
+      console.error("Error creating purchase:", error);
       return res.status(500).json({ msg: "Internet Server error" });
     }
   },
@@ -65,11 +81,11 @@ const CategoryController = {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ msg: "Not a valid id" });
       }
-      let category = await Category.findById(id);
-      if (!category) {
-        return res.status(404).json({ msg: "Category not found" });
+      let purchase = await Purchase.findById(id);
+      if (!purchase) {
+        return res.status(404).json({ msg: "Purchase not found" });
       }
-      return res.json(category);
+      return res.json(purchase);
     } catch (e) {
       return res.status(500).json({ msg: "Internet server error" });
     }
@@ -80,11 +96,11 @@ const CategoryController = {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ msg: "Not a valid id" });
       }
-      let category = await Category.findByIdAndDelete(id);
-      if (!category) {
-        return res.status(404).json({ msg: "Category not found" });
+      let purchase = await Purchase.findByIdAndDelete(id);
+      if (!purchase) {
+        return res.status(404).json({ msg: "Purchase not found" });
       }
-      return res.json(category);
+      return res.json(purchase);
     } catch (e) {
       return res.status(500).json({ msg: "Internet server error" });
     }
@@ -95,17 +111,21 @@ const CategoryController = {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ msg: "Not a valid id" });
       }
-      let category = await Category.findByIdAndUpdate(id, {
-        ...req.body,
-      });
-      if (!category) {
-        return res.status(404).json({ msg: "Category not found" });
+      let purchase = await Purchase.findByIdAndUpdate(
+        id,
+        {
+          ...req.body,
+        },
+        { new: true }
+      ).populate("category");
+      if (!purchase) {
+        return res.status(404).json({ msg: "Purchase not found" });
       }
-      return res.json(category);
+      return res.json(purchase);
     } catch (e) {
       return res.status(500).json({ msg: "Internet server error" });
     }
   },
 };
 
-module.exports = CategoryController;
+module.exports = PurchaseController;

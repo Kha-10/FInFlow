@@ -39,14 +39,24 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import axios from "@/helper/axios";
 import debounce from "lodash.debounce";
 import { useSearchParams } from "react-router-dom";
 
 export default function ItemList({ items, setItems }) {
-  const [editingItemId, setEditingItemId] = useState(null);
-  const [openDialogId, setOpenDialogId] = useState(null);
+  const [editingItem, setEditingItem] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [deletingItem, setDeletingItem] = useState(null);
 
   const search = searchParams.get("search") || "";
   const sort = searchParams.get("sort") || "";
@@ -62,19 +72,18 @@ export default function ItemList({ items, setItems }) {
     },
   });
 
-  const handleOpenDialog = (itemId, item) => {
-    setOpenDialogId(itemId);
-    setEditingItemId(itemId);
+  const handleOpenDialog = (item) => {
+    setEditingItem(item);
     editForm.setValue("name", item.name);
   };
-
+  console.log(editingItem);
   const handleCloseDialog = () => {
-    setOpenDialogId(null);
+    setEditingItem(null);
   };
 
   async function onEdit(values) {
     try {
-      const res = await axios.patch(`/api/items/${editingItemId}`, values);
+      const res = await axios.patch(`/api/items/${editingItem._id}`, values);
       if (res.status === 200) {
         toast({
           title: "Item updated",
@@ -83,7 +92,7 @@ export default function ItemList({ items, setItems }) {
         });
         setItems((prevItems) =>
           prevItems.map((item) =>
-            item._id === editingItemId ? { ...item, ...values } : item
+            item._id === editingItem._id ? { ...item, ...res.data } : item
           )
         );
         editForm.reset();
@@ -101,16 +110,16 @@ export default function ItemList({ items, setItems }) {
     }
   }
 
-  async function onDeleteItem(id) {
+  async function onDeleteItem() {
     try {
-      const res = await axios.delete(`/api/items/${id}`);
+      const res = await axios.delete(`/api/items/${deletingItem._id}`);
       if (res.status === 200) {
         toast({
           title: "Item deleted",
           description: "The item has been deleted successfully.",
           duration: 3000,
         });
-        setItems((prevItems) => prevItems.filter((item) => item._id !== id));
+        setItems((prevItems) => prevItems.filter((item) => item._id !== deletingItem._id));
       }
     } catch (error) {
       console.error("Error deleting item:", error);
@@ -151,8 +160,6 @@ export default function ItemList({ items, setItems }) {
     searchParams.set("sortDirection", value);
     setSearchParams(searchParams);
   };
-
-  console.log(openDialogId);
 
   return (
     <div className="space-y-6 pt-3">
@@ -288,8 +295,7 @@ export default function ItemList({ items, setItems }) {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Dialog
-
-                          open={openDialogId === item._id}
+                          open={editingItem && editingItem._id === item._id}
                           onOpenChange={(isOpen) => {
                             if (!isOpen) {
                               handleCloseDialog();
@@ -300,12 +306,7 @@ export default function ItemList({ items, setItems }) {
                             <Button
                               variant="ghost"
                               size="icon"
-                              //   onClick={() => {
-                              //     setEditingItem(item);
-                              //     editForm.setValue("name", item.name);
-                              //     setIsDialogOpen(true);
-                              //   }}
-                              onClick={() => handleOpenDialog(item._id, item)}
+                              onClick={() => handleOpenDialog(item)}
                               className="text-purple-600 hover:text-purple-800 hover:bg-purple-100"
                             >
                               <Pencil className="h-4 w-4" />
@@ -330,6 +331,7 @@ export default function ItemList({ items, setItems }) {
                                       <FormControl>
                                         <Input
                                           {...field}
+                                          autoComplete="off"
                                           className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
                                         />
                                       </FormControl>
@@ -350,7 +352,7 @@ export default function ItemList({ items, setItems }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => onDeleteItem(item._id)}
+                          onClick={() => setDeletingItem(item)}
                           className="text-pink-600 hover:text-pink-800 hover:bg-pink-100"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -364,6 +366,31 @@ export default function ItemList({ items, setItems }) {
           </ScrollArea>
         </CardContent>
       </Card>
+      <AlertDialog
+        open={!!deletingItem}
+        onOpenChange={() => setDeletingItem(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Delete this category permanently?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this category? You won't be able
+              to recover it.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={onDeleteItem}
+              className="bg-red-500 text-white hover:bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

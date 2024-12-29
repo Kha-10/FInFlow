@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
-import TransactionForm from "@/components/TransactionForm";
-import TransactionList from "@/components/TransactionList";
+import TransactionForm from "@/components/Transactions/TransactionForm";
+import TransactionList from "@/components/Transactions/TransactionList";
 import Summary from "@/components/summary";
 import CategoryForm from "@/components/CategoryForm";
 import ItemManagement from "@/components/Items/ItemList";

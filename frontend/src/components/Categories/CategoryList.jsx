@@ -10,15 +10,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Pencil, Search, Trash2, ChevronDown, X } from "lucide-react";
 import {
@@ -39,13 +30,23 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import axios from "@/helper/axios";
 import debounce from "lodash.debounce";
 import { useSearchParams } from "react-router-dom";
 
 export default function CategoryList({ categories, setCategories }) {
-  const [editingCategoryId, setEditingCategoryId] = useState(null);
-  const [openDialogId, setOpenDialogId] = useState(null);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [deletingCategory, setDeletingCategory] = useState(null)
   const [searchParams, setSearchParams] = useSearchParams();
 
   const search = searchParams.get("search") || "";
@@ -62,20 +63,19 @@ export default function CategoryList({ categories, setCategories }) {
     },
   });
 
-  const handleOpenDialog = (categoryId, category) => {
-    setOpenDialogId(categoryId);
-    setEditingCategoryId(categoryId);
+  const handleOpenDialog = (category) => {
+    setEditingCategory(category);
     editForm.setValue("name", category.name);
   };
 
   const handleCloseDialog = () => {
-    setOpenDialogId(null);
+    setEditingCategory(null);
   };
 
   async function onEdit(values) {
     try {
       const res = await axios.patch(
-        `/api/categories/${editingCategoryId}`,
+        `/api/categories/${editingCategory._id}`,
         values
       );
       if (res.status === 200) {
@@ -86,7 +86,7 @@ export default function CategoryList({ categories, setCategories }) {
         });
         setCategories((prevItems) =>
           prevItems.map((item) =>
-            item._id === editingCategoryId ? { ...item, ...values } : item
+            item._id === editingCategory._id ? { ...item, ...res.data } : item
           )
         );
         editForm.reset();
@@ -104,9 +104,9 @@ export default function CategoryList({ categories, setCategories }) {
     }
   }
 
-  async function onDeleteItem(id) {
+  async function onDeleteItem() {
     try {
-      const res = await axios.delete(`/api/categories/${id}`);
+      const res = await axios.delete(`/api/categories/${deletingCategory._id}`);
       if (res.status === 200) {
         toast({
           title: "Category deleted",
@@ -114,8 +114,9 @@ export default function CategoryList({ categories, setCategories }) {
           duration: 3000,
         });
         setCategories((prevItems) =>
-          prevItems.filter((item) => item._id !== id)
+          prevItems.filter((item) => item._id !== deletingCategory._id)
         );
+        handleCloseDialog();
       }
     } catch (error) {
       console.error("Error deleting category:", error);
@@ -156,7 +157,7 @@ export default function CategoryList({ categories, setCategories }) {
     searchParams.set("sortDirection", value);
     setSearchParams(searchParams);
   };
-
+ 
   return (
     <div className="space-y-6 pt-3">
       <Card>
@@ -291,7 +292,7 @@ export default function CategoryList({ categories, setCategories }) {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Dialog
-                          open={openDialogId === category._id}
+                          open={editingCategory && editingCategory._id === category._id}
                           onOpenChange={(isOpen) => {
                             if (!isOpen) {
                               handleCloseDialog();
@@ -302,7 +303,7 @@ export default function CategoryList({ categories, setCategories }) {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleOpenDialog(category._id, category)}
+                              onClick={() => handleOpenDialog(category)}
                               className="text-purple-600 hover:text-purple-800 hover:bg-purple-100"
                             >
                               <Pencil className="h-4 w-4" />
@@ -327,6 +328,7 @@ export default function CategoryList({ categories, setCategories }) {
                                       <FormControl>
                                         <Input
                                           {...field}
+                                          autoComplete="off"
                                           className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
                                         />
                                       </FormControl>
@@ -334,7 +336,10 @@ export default function CategoryList({ categories, setCategories }) {
                                     </FormItem>
                                   )}
                                 />
-                                <Button className=" bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
+                                <Button
+                                  type="submit"
+                                  className=" bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md"
+                                >
                                   Update category
                                 </Button>
                               </form>
@@ -344,7 +349,7 @@ export default function CategoryList({ categories, setCategories }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => onDeleteItem(category._id)}
+                          onClick={() => setDeletingCategory(category)}
                           className="text-pink-600 hover:text-pink-800 hover:bg-pink-100"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -358,6 +363,31 @@ export default function CategoryList({ categories, setCategories }) {
           </ScrollArea>
         </CardContent>
       </Card>
+      <AlertDialog
+        open={!!deletingCategory}
+        onOpenChange={() => setDeletingCategory(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Delete this category permanently?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this category? You won't be
+              able to recover it.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={onDeleteItem}
+              className="bg-red-500 text-white hover:bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
