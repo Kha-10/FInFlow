@@ -46,7 +46,7 @@ import { useSearchParams } from "react-router-dom";
 
 export default function CategoryList({ categories, setCategories }) {
   const [editingCategory, setEditingCategory] = useState(null);
-  const [deletingCategory, setDeletingCategory] = useState(null)
+  const [deletingCategory, setDeletingCategory] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const search = searchParams.get("search") || "";
@@ -157,7 +157,7 @@ export default function CategoryList({ categories, setCategories }) {
     searchParams.set("sortDirection", value);
     setSearchParams(searchParams);
   };
- 
+
   return (
     <div className="space-y-6 pt-3">
       <Card>
@@ -292,7 +292,10 @@ export default function CategoryList({ categories, setCategories }) {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Dialog
-                          open={editingCategory && editingCategory._id === category._id}
+                          open={
+                            editingCategory &&
+                            editingCategory._id === category._id
+                          }
                           onOpenChange={(isOpen) => {
                             if (!isOpen) {
                               handleCloseDialog();
@@ -329,6 +332,12 @@ export default function CategoryList({ categories, setCategories }) {
                                         <Input
                                           {...field}
                                           autoComplete="off"
+                                          {...editForm.register("name", {
+                                            required: {
+                                              value: true,
+                                              message: "Item name is required",
+                                            },
+                                          })}
                                           className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
                                         />
                                       </FormControl>
@@ -373,8 +382,8 @@ export default function CategoryList({ categories, setCategories }) {
               Delete this category permanently?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this category? You won't be
-              able to recover it.
+              Are you sure you want to delete this category? You won't be able
+              to recover it.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

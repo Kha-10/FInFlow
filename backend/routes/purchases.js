@@ -15,7 +15,6 @@ router.post(
     body("category").notEmpty(),
     body("description").notEmpty(),
     body("date").notEmpty(),
-    body("amount").notEmpty(),
   ],
   handleErrorMessage,
   PurchaseController.store

@@ -70,7 +70,10 @@ export default function TransactionForm({
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "items", // Specify the field array name
+    name: "items",
+    rules: {
+      required: "At least one item is required",
+    },
   });
   //   const addItem = () => {
   //     setItems([...items, { ...itemForm }]);
@@ -119,6 +122,13 @@ export default function TransactionForm({
       date: values.date || new Date(),
       purchaseType: activeTab,
     };
+    if (activeTab === "Full Form" && fields.length === 0) {
+      form.setError("items", {
+        type: "custom",
+        message: "At least one item is required",
+      });
+      return false;
+    }
     try {
       const res = await axios.post("/api/purchases", updatedValues);
       if (res.status === 200) {
@@ -142,6 +152,7 @@ export default function TransactionForm({
         status: "error",
       });
     }
+    console.log(updatedValues);
   }
 
   return (
@@ -218,6 +229,7 @@ export default function TransactionForm({
                 <FormField
                   control={form.control}
                   name="category"
+                  rules={{ required: "Please select a category" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
@@ -251,6 +263,12 @@ export default function TransactionForm({
                       <FormControl>
                         <Input
                           placeholder="Enter description"
+                          {...form.register("description", {
+                            required: {
+                              value: true,
+                              message: "Description is required",
+                            },
+                          })}
                           autoComplete="off"
                           {...field}
                           className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
@@ -305,139 +323,80 @@ export default function TransactionForm({
                     </FormItem>
                   )}
                 />
-                <Card>
-                  <CardHeader className="w-full flex flex-row items-center justify-between">
-                    <CardTitle className="text-base">Items</CardTitle>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="border border-blue-500 text-blue-500"
-                      onClick={() =>
-                        append({
-                          name: "",
-                          price: 0,
-                          pricePerUnit: false,
-                        })
-                      }
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add item
-                    </Button>
-                  </CardHeader>
-                  {fields.length > 0 && (
-                    <CardContent className="space-y-4">
-                      {fields.map((field, index) => (
-                        <div
-                          key={field.id}
-                          className="rounded-lg border border-gray-200 p-4 space-y-4"
-                        >
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-medium">
-                              Item {index + 1}
-                            </h3>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => remove(index)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <div className="w-full flex justify-start space-x-4">
-                            <FormField
-                              control={form.control}
-                              name={`items.${index}.name`}
-                              render={({ field }) => (
-                                <FormItem className="w-full">
-                                  <FormLabel>Name</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      className="w-full bg-primary-foreground focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
-                                      placeholder="Name"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`items.${index}.price`}
-                              render={({ field }) => (
-                                <FormItem className="w-full">
-                                  <FormLabel>Price</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      className="w-full bg-primary-foreground focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
-                                      type="number"
-                                      placeholder="0"
-                                      min="0"
-                                      step="0.01"
-                                      {...field}
-                                      onChange={(e) => {
-                                        const value = e.target.value;
-                                        field.onChange(
-                                          value === "" ? "" : parseFloat(value)
-                                        );
-                                      }}
-                                      value={field.value || ""}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          <FormField
-                            control={form.control}
-                            name={`items.${index}.pricePerUnit`}
-                            render={({ field }) => (
-                              <FormItem className="flex items-center space-x-3">
-                                <FormControl>
-                                  <Checkbox
-                                    className="peer data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 border-gray-300 mt-1"
-                                    checked={field.value}
-                                    onCheckedChange={(checked) => {
-                                      field.onChange(checked);
-                                      if (!checked) {
-                                        const updatedItems = form
-                                          .getValues("items")
-                                          .map((item, idx) => {
-                                            if (idx === index) {
-                                              const {
-                                                unit,
-                                                unitValue,
-                                                ...rest
-                                              } = item;
-                                              return rest;
-                                            }
-                                            return item;
-                                          });
-                                        form.setValue("items", updatedItems);
-                                      }
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel
-                                  htmlFor="pricePerUnit"
-                                  className="text-sm"
-                                >
-                                  Price per unit
-                                </FormLabel>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          {form.watch(`items.${index}.pricePerUnit`) && (
-                            <div className="flex items-center gap-3">
+                <div className="space-y-2">
+                  <Card>
+                    <CardHeader className="w-full flex flex-row items-center justify-between">
+                      <CardTitle className="text-base">Items</CardTitle>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border border-blue-500 text-blue-500"
+                        onClick={() =>
+                          append({
+                            name: "",
+                            price: 0,
+                            pricePerUnit: false,
+                          })
+                        }
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add item
+                      </Button>
+                    </CardHeader>
+                    {fields.length > 0 && (
+                      <CardContent className="space-y-4">
+                        {fields.map((field, index) => (
+                          <div
+                            key={field.id}
+                            className="rounded-lg border border-gray-200 p-4 space-y-4"
+                          >
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-lg font-medium">
+                                Item {index + 1}
+                              </h3>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => remove(index)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <div className="w-full flex justify-start space-x-4">
                               <FormField
                                 control={form.control}
-                                name={`items.${index}.unitValue`}
+                                name={`items.${index}.name`}
                                 render={({ field }) => (
                                   <FormItem className="w-full">
-                                    <FormLabel>Unit value</FormLabel>
+                                    <FormLabel>Name</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        className="w-full bg-primary-foreground focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+                                        placeholder="Name"
+                                        autoComplete="off"
+                                        {...field}
+                                        {...form.register(
+                                          `items.${index}.name`,
+                                          {
+                                            required: {
+                                              value: true,
+                                              message: "Name is required",
+                                            },
+                                          }
+                                        )}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`items.${index}.price`}
+                                render={({ field }) => (
+                                  <FormItem className="w-full">
+                                    <FormLabel>Price</FormLabel>
                                     <FormControl>
                                       <Input
                                         className="w-full bg-primary-foreground focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
@@ -446,6 +405,15 @@ export default function TransactionForm({
                                         min="0"
                                         step="0.01"
                                         {...field}
+                                        {...form.register(
+                                          `items.${index}.price`,
+                                          {
+                                            required: {
+                                              value: true,
+                                              message: "Price is required",
+                                            },
+                                          }
+                                        )}
                                         onChange={(e) => {
                                           const value = e.target.value;
                                           field.onChange(
@@ -461,43 +429,139 @@ export default function TransactionForm({
                                   </FormItem>
                                 )}
                               />
-                              <FormField
-                                control={form.control}
-                                name={`items.${index}.unit`}
-                                render={({ field }) => (
-                                  <FormItem className="w-full">
-                                    <FormLabel>Unit</FormLabel>
-                                    <FormControl>
-                                      <Select
-                                        value={field.value}
-                                        onValueChange={field.onChange}
-                                      >
-                                        <SelectTrigger className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0">
-                                          <SelectValue placeholder="Select unit" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectGroup>
-                                            <SelectLabel>Units</SelectLabel>
-                                            {data.map((item, i) => (
-                                              <SelectItem key={i} value={item}>
-                                                {item}
-                                              </SelectItem>
-                                            ))}
-                                          </SelectGroup>
-                                        </SelectContent>
-                                      </Select>
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
                             </div>
-                          )}
-                        </div>
-                      ))}
-                    </CardContent>
+                            <FormField
+                              control={form.control}
+                              name={`items.${index}.pricePerUnit`}
+                              render={({ field }) => (
+                                <FormItem className="flex items-center space-x-3">
+                                  <FormControl>
+                                    <Checkbox
+                                      className="peer data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 border-gray-300 mt-1"
+                                      checked={field.value}
+                                      onCheckedChange={(checked) => {
+                                        field.onChange(checked);
+                                        if (!checked) {
+                                          const updatedItems = form
+                                            .getValues("items")
+                                            .map((item, idx) => {
+                                              if (idx === index) {
+                                                const {
+                                                  unit,
+                                                  unitValue,
+                                                  ...rest
+                                                } = item;
+                                                return rest;
+                                              }
+                                              return item;
+                                            });
+                                          form.setValue("items", updatedItems);
+                                        }
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel
+                                    htmlFor="pricePerUnit"
+                                    className="text-sm"
+                                  >
+                                    Price per unit
+                                  </FormLabel>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            {form.watch(`items.${index}.pricePerUnit`) && (
+                              <div className="flex items-center gap-3">
+                                <FormField
+                                  control={form.control}
+                                  name={`items.${index}.unitValue`}
+                                  render={({ field }) => (
+                                    <FormItem className="w-full min-h-5">
+                                      <FormLabel>Unit value</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          className="w-full bg-primary-foreground focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+                                          type="number"
+                                          placeholder="0"
+                                          min="0"
+                                          step="0.01"
+                                          {...field}
+                                          {...form.register(
+                                            `items.${index}.unitValue`,
+                                            {
+                                              required: {
+                                                value: true,
+                                                message:
+                                                  "Unit value is required",
+                                              },
+                                            }
+                                          )}
+                                          onChange={(e) => {
+                                            const value = e.target.value;
+                                            field.onChange(
+                                              value === ""
+                                                ? ""
+                                                : parseFloat(value)
+                                            );
+                                          }}
+                                          value={field.value || ""}
+                                        />
+                                      </FormControl>
+                                      <div className="min-h-[20px]">
+                                        <FormMessage />
+                                      </div>
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name={`items.${index}.unit`}
+                                  rules={{ required: "Please select a unit" }}
+                                  render={({ field }) => (
+                                    <FormItem className="w-full">
+                                      <FormLabel>Unit</FormLabel>
+                                      <FormControl>
+                                        <Select
+                                          value={field.value}
+                                          onValueChange={field.onChange}
+                                        >
+                                          <SelectTrigger className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0">
+                                            <SelectValue placeholder="Select unit" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectGroup>
+                                              <SelectLabel>Units</SelectLabel>
+                                              {data.map((item, i) => (
+                                                <SelectItem
+                                                  key={i}
+                                                  value={item}
+                                                >
+                                                  {item}
+                                                </SelectItem>
+                                              ))}
+                                            </SelectGroup>
+                                          </SelectContent>
+                                        </Select>
+                                      </FormControl>
+                                      <div className="min-h-[20px]">
+                                        <FormMessage />
+                                      </div>
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </CardContent>
+                    )}
+                  </Card>
+                  {form.formState.errors.items && (
+                    <p className=" text-sm text-red-500 font-medium">
+                      {form.formState.errors.items?.root?.message}
+                    </p>
                   )}
-                </Card>
+                </div>
               </div>
             </div>
             {activeTab == "Full Form" && (
@@ -575,6 +639,7 @@ export default function TransactionForm({
                 <FormField
                   control={quickAddForm.control}
                   name="category"
+                  rules={{ required: "Please select a category" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
@@ -607,7 +672,7 @@ export default function TransactionForm({
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Input
-                         autoComplete="off"
+                          autoComplete="off"
                           placeholder="Enter description"
                           {...field}
                           {...quickAddForm.register("description", {
@@ -678,12 +743,6 @@ export default function TransactionForm({
                     <FormItem>
                       <FormLabel>Amount</FormLabel>
                       <FormControl>
-                        {/* <Input
-                          type="number"
-                          step="0.01"
-                          {...field}
-                          className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
-                        /> */}
                         <Input
                           className="w-full bg-primary-foreground focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
                           type="number"
@@ -691,6 +750,12 @@ export default function TransactionForm({
                           min="0"
                           step="0.01"
                           {...field}
+                          {...quickAddForm.register("amount", {
+                            required: {
+                              value: true,
+                              message: "Amount is required",
+                            },
+                          })}
                           onChange={(e) => {
                             const value = e.target.value;
                             field.onChange(

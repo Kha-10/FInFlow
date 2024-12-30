@@ -83,7 +83,6 @@ export default function EditTransactionDialog({
   if (!transaction) return null;
 
   async function onSubmit(values) {
-    console.log(values);
     try {
       const res = await axios.patch(`/api/purchases/${values._id}`, values);
       if (res.status === 200) {
@@ -193,6 +192,12 @@ export default function EditTransactionDialog({
                             <Input
                               autoComplete="off"
                               {...field}
+                              {...form.register("description", {
+                                required: {
+                                  value: true,
+                                  message: "Description is required",
+                                },
+                              })}
                               className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
                             />
                           </FormControl>

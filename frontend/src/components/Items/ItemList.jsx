@@ -119,7 +119,9 @@ export default function ItemList({ items, setItems }) {
           description: "The item has been deleted successfully.",
           duration: 3000,
         });
-        setItems((prevItems) => prevItems.filter((item) => item._id !== deletingItem._id));
+        setItems((prevItems) =>
+          prevItems.filter((item) => item._id !== deletingItem._id)
+        );
       }
     } catch (error) {
       console.error("Error deleting item:", error);
@@ -332,6 +334,12 @@ export default function ItemList({ items, setItems }) {
                                         <Input
                                           {...field}
                                           autoComplete="off"
+                                          {...editForm.register("name", {
+                                            required: {
+                                              value: true,
+                                              message: "Item name is required",
+                                            },
+                                          })}
                                           className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
                                         />
                                       </FormControl>
