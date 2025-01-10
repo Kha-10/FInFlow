@@ -8,7 +8,7 @@ const Sidebar = () => {
   const isActive = (path) => location.pathname === path;
 
   const menuItems = [
-    { icon:LayoutDashboard , label: "Dashboard", path: "/" },
+    { icon:LayoutDashboard , label: "Dashboard", path: "/dashboard" },
     { icon: ShoppingCart, label: "Purchases", path: "/purchases" },
   ];
 

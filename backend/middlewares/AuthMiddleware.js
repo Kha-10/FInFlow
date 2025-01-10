@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const AuthMiddleware = (req,res,next) => {
+    console.log(req.cookies.jwt);
     let token = req.cookies.jwt;
     if(token) {
         jwt.verify(token,process.env.SECRET_KEY,(err,decodedValue) => {
