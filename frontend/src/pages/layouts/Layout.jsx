@@ -6,7 +6,7 @@ import { useContext } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
 
 export default function Layout() {
-  let { user } = useContext(AuthContext);
+//   let { user } = useContext(AuthContext);
   return (
     <div>
       {/* {user && <Header />} */}
@@ -18,7 +18,7 @@ export default function Layout() {
         {/* {user && <Sidebar />} */}
         <Sidebar />
         {/* <div className={`${user ? "md:pl-64 " : " "} overflow-x-hidden`}> */}
-        <div className={`md:pl-64  overflow-x-hidden`}>
+        <div className={`md:pl-64 overflow-x-hidden`}>
           <Outlet />
         </div>
         {/* Add padding bottom for mobile to account for bottom navigation */}

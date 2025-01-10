@@ -13,7 +13,7 @@ import { useContext } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
 
 function index() {
-  let { user } = useContext(AuthContext);
+//   let { user } = useContext(AuthContext);
 
   const router = createBrowserRouter([
     {
