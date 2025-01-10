@@ -15,7 +15,7 @@ const app = express();
 app.use(
   cors({
     // origin: "https://fin-flow-frontend.vercel.app",
-    origin: process.env.ORIGIN,
+    origin: "https://fin-flow-frontend.vercel.app/",
     credentials: true,
   })
 );
