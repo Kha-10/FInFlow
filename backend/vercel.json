@@ -51,11 +51,5 @@
         "src": "/(.*)",
         "dest": "/backend/server.js"
       }
-    ],
-    "env": {
-      "MONGODB_URI": "@mongodb_uri",
-      "PORT": "@port",
-      "ORIGIN": "@origin",
-      "JWT_SECRET": "@jwt_secret"
-    }
+    ]
   }
