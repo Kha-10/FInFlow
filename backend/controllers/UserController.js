@@ -15,6 +15,8 @@ const UserController = {
       res.cookie("jwt", token, {
         httpOnly: true,
         maxAge: 3 * 24 * 60 * 60 * 1000,
+        sameSite: "strict", // Use "lax" if cross-origin POST requests fail
+        secure: process.env.NODE_ENV === "production",
       });
 
       return res.json({ user, token });
