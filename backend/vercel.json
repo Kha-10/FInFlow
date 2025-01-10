@@ -2,54 +2,18 @@
     "version": 2,
     "builds": [
       {
-        "src": "backend/server.js",
+        "src": "/server.js",
         "use": "@vercel/node"
       }
     ],
     "routes": [
       {
-        "src": "/api/items/(.*)",
-        "headers": {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Credentials": "true"
-        },
-        "dest": "/backend/server.js"
-      },
-      {
-        "src": "/api/categories/(.*)",
-        "headers": {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Credentials": "true"
-        },
-        "dest": "/backend/server.js"
-      },
-      {
-        "src": "/api/purchases/(.*)",
-        "headers": {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Credentials": "true"
-        },
-        "dest": "/backend/server.js"
-      },
-      {
-        "src": "/api/users/(.*)",
-        "headers": {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Credentials": "true"
-        },
-        "dest": "/backend/server.js"
+        "src": "/api/(.*)",
+        "dest": "/server.js"
       },
       {
         "src": "/(.*)",
-        "dest": "/backend/server.js"
+        "dest": "/server.js"
       }
     ]
   }
