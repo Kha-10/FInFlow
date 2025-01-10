@@ -10,17 +10,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Pencil, Search, Trash2, ChevronDown, X } from "lucide-react";
+import {
+  Pencil,
+  Search,
+  Trash2,
+  ChevronDown,
+  X,
+  ArrowDownUp,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -52,6 +50,7 @@ import {
 import axios from "@/helper/axios";
 import debounce from "lodash.debounce";
 import { useSearchParams } from "react-router-dom";
+import { useMediaQuery } from "react-responsive";
 
 export default function ItemList({ items, setItems }) {
   const [editingItem, setEditingItem] = useState(null);
@@ -61,6 +60,8 @@ export default function ItemList({ items, setItems }) {
   const search = searchParams.get("search") || "";
   const sort = searchParams.get("sort") || "";
   const sortDirection = searchParams.get("sortDirection") || "";
+
+  const isMobile = useMediaQuery({ maxWidth: 640 });
 
   const { toast } = useToast();
 
@@ -165,15 +166,15 @@ export default function ItemList({ items, setItems }) {
 
   return (
     <div className="space-y-6 pt-3">
-      <Card>
+      <Card className="bg-white dark:bg-gray-800">
         <CardContent className="pt-6">
           <h3 className="text-lg font-semibold mb-4">Item List</h3>
-          <div className="px-4 flex flex-col sm:flex-row gap-4 justify-between">
+          <div className="flex  sm:flex-row gap-4 justify-between">
             <div className="relative flex-grow">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search purchases..."
-                className="pl-8 border-input w-full focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0 focus:border-input focus:ring-ring"
+                className="pl-8 bg-card border-input w-full focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0 focus:border-input focus:ring-ring"
                 value={search}
                 onChange={handleChange}
               />
@@ -191,11 +192,17 @@ export default function ItemList({ items, setItems }) {
             </div>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2">
-                    Sort
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
+                <DropdownMenuTrigger asChild className="bg-card">
+                  {isMobile ? (
+                    <div className="p-2 border rounded-lg">
+                      <ArrowDownUp className="w-5 h-5" />
+                    </div>
+                  ) : (
+                    <Button variant="outline" className="gap-2">
+                      Sort
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  )}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="">
                   <div className="p-2">
@@ -287,10 +294,10 @@ export default function ItemList({ items, setItems }) {
             </div>
           </div>
           <ScrollArea>
-            <div className="space-y-2 p-4">
+            <div className="space-y-2 py-4">
               {items.map((item) => (
-                <Card key={item._id} className="overflow-hidden">
-                  <CardContent className="p-0 bg-card">
+                <Card key={item._id} className="overflow-hidden transition-all hover:shadow-md dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500">
+                  <CardContent className="p-0 bg-gray-50 dark:bg-gray-700">
                     <div className="flex items-center justify-between p-4">
                       <div>
                         <h3 className="font-semibold">{item.name}</h3>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,19 +21,18 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { X, Plus, Trash2, CalendarIcon } from "lucide-react";
-import { Label } from "../ui/label";
+import { Plus, Trash2, CalendarIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
+import { ScrollArea } from "../ui/scroll-area";
 import { cn } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import axios from "@/helper/axios";
 import { DevTool } from "@hookform/devtools";
@@ -42,8 +41,27 @@ export default function TransactionForm({
   setIsSheetOpen,
   setPurchases,
   categories,
+  itemlist,
 }) {
   const [activeTab, setActiveTab] = useState("Quick Add");
+  const [isFocused, setIsFocused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const wrapperRef = useRef(null);
+
+  const handleClickOutside = (e) => {
+    if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+      setShowSuggestions(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const { toast } = useToast();
 
   const form = useForm({
@@ -51,7 +69,6 @@ export default function TransactionForm({
       transactionType: "outcome",
       category: null,
       description: "",
-      amount: 0,
       date: new Date(),
       items: [],
       total: 0,
@@ -75,32 +92,18 @@ export default function TransactionForm({
       required: "At least one item is required",
     },
   });
-  //   const addItem = () => {
-  //     setItems([...items, { ...itemForm }]);
-  //     setItemForm({ name: "", quantity: "", price: 0 });
-  //   };
-
-  const addItem = () => {
-    append({ name: "", quantity: "", price: 0 }); // Add a new empty item
-  };
-
-  //   const removeItem = (index) => {
-  //     setItems(items.filter((_, i) => i !== index));
-  //   };
 
   const items = form.watch("items");
-  const totalAmount = items.reduce((sum, item) => sum + item.price, 0);
+  const totalAmount = items.reduce(
+    (sum, item) => sum + parseFloat(item.price),
+    0
+  );
 
   useEffect(() => {
     if (totalAmount > 0) {
-      form.setValue("total", totalAmount);
+      form.setValue("total", totalAmount.toFixed(2));
     }
   }, [totalAmount]);
-
-  function handleSubmit(values) {
-    onSubmit({ ...values });
-    form.reset();
-  }
 
   const data = [
     "G",
@@ -152,7 +155,6 @@ export default function TransactionForm({
         status: "error",
       });
     }
-    console.log(updatedValues);
   }
 
   return (
@@ -331,13 +333,13 @@ export default function TransactionForm({
                         type="button"
                         variant="outline"
                         className="border border-blue-500 text-blue-500"
-                        onClick={() =>
+                        onClick={() => {
                           append({
                             name: "",
                             price: 0,
                             pricePerUnit: false,
-                          })
-                        }
+                          });
+                        }}
                       >
                         <Plus className="mr-2 h-4 w-4" />
                         Add item
@@ -363,18 +365,25 @@ export default function TransactionForm({
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
-                            <div className="w-full flex justify-start space-x-4">
+                            <div
+                              ref={wrapperRef}
+                              className="relative w-full flex justify-start space-x-4"
+                            >
                               <FormField
                                 control={form.control}
                                 name={`items.${index}.name`}
                                 render={({ field }) => (
-                                  <FormItem className="w-full">
+                                  <FormItem className="relative w-full">
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
                                       <Input
                                         className="w-full bg-primary-foreground focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
                                         placeholder="Name"
                                         autoComplete="off"
+                                        onFocus={() => {
+                                          setActiveIndex(index);
+                                          setShowSuggestions(true);
+                                        }}
                                         {...field}
                                         {...form.register(
                                           `items.${index}.name`,
@@ -391,6 +400,43 @@ export default function TransactionForm({
                                   </FormItem>
                                 )}
                               />
+                              {showSuggestions &&
+                                activeIndex === index &&
+                                itemlist?.length > 0 &&
+                                activeIndex !== null && (
+                                  <div className="absolute z-50 top-20 -left-5 w-full bg-background border rounded-md shadow-lg">
+                                    <ScrollArea className="max-h-60">
+                                      {itemlist.map((item) => (
+                                        <Button
+                                          key={item._id}
+                                          onMouseDown={(e) => {
+                                            e.preventDefault();
+                                            const currentItems =
+                                              form.getValues("items");
+                                            currentItems[index] = {
+                                              ...currentItems[index],
+                                              name: item.name,
+                                            };
+                                            form.setValue(
+                                              "items",
+                                              currentItems
+                                            );
+                                            setShowSuggestions(false);
+                                          }}
+                                          variant="ghost"
+                                          type="button"
+                                          className="w-full justify-start rounded-none h-auto py-3 px-4 space-y-1"
+                                        >
+                                          <div className="flex flex-col items-start">
+                                            <span className="text-sm font-medium">
+                                              {item.name}
+                                            </span>
+                                          </div>
+                                        </Button>
+                                      ))}
+                                    </ScrollArea>
+                                  </div>
+                                )}
                               <FormField
                                 control={form.control}
                                 name={`items.${index}.price`}
@@ -567,7 +613,9 @@ export default function TransactionForm({
             {activeTab == "Full Form" && (
               <div className="flex justify-between items-center pt-4 border-t mt-6">
                 <span className="text-lg font-semibold">Total:</span>
-                <span className="text-lg font-semibold">${totalAmount}</span>
+                <span className="text-lg font-semibold">
+                  ${parseFloat(totalAmount).toFixed(2)}
+                </span>
               </div>
             )}
             <div className="mt-4 border-t pt-4">
@@ -653,7 +701,7 @@ export default function TransactionForm({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {categories.map((category) => (
+                          {categories?.map((category) => (
                             <SelectItem key={category._id} value={category._id}>
                               {category.name}
                             </SelectItem>

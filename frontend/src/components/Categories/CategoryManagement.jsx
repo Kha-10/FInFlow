@@ -39,7 +39,6 @@ export default function CategoryManagement() {
         }`
       );
       if (response.status === 200) {
-        // setRecipes(response.data.data);
         console.log(response);
         setCategories(response.data.data);
         setPagination(response.data.links);

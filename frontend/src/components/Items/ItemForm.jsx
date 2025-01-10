@@ -40,7 +40,7 @@ const ItemForm = ({ setItems, setIsItemSheetOpen }) => {
       console.error("Error posting item:", error);
       toast({
         title: "Error",
-        description: error.response.data
+        description: error.response?.data
           ? error.response.data.msg
           : "There was an issue adding the item. Please try again.",
         duration: 3000,

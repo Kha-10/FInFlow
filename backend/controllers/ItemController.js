@@ -6,9 +6,14 @@ const ItemController = {
     let limit = 10;
     let page = req.query.page || 1;
     let searchQuery = req.query.search || "";
-    const searchCondition = searchQuery
-      ? { name: { $regex: searchQuery, $options: "i" } }
-      : {};
+    const userId = req.user._id;
+
+    const searchCondition = {
+      userId,
+    };
+    if (searchQuery) {
+      searchCondition.name = { $regex: searchQuery, $options: "i" };
+    }
     const sort = req.query.sort || "createdAt";
     const sortDirection = req.query.sortDirection === "asc" ? 1 : -1;
     const sortObject =
@@ -26,8 +31,8 @@ const ItemController = {
       nextPage: totalPagesCount == page ? false : true,
       previousPage: page == 1 ? false : true,
       currentPage: page,
-      totalPages : totalPagesCount,
-      limit : limit,
+      totalPages: totalPagesCount,
+      limit: limit,
       loopableLinks: [],
     };
 
@@ -45,13 +50,14 @@ const ItemController = {
   store: async (req, res) => {
     const { name } = req.body;
     try {
-      const existingItem = await Item.findOne({ name });
+      const userId = req.user._id;
+      const existingItem = await Item.findOne({ name, userId });
 
       if (existingItem) {
         return res.status(409).json({ msg: "Item name already exists" });
       }
 
-      const item = await Item.create({ name });
+      const item = await Item.create({ name, userId });
 
       return res.json(item);
     } catch (error) {
@@ -95,9 +101,13 @@ const ItemController = {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ msg: "Not a valid id" });
       }
-      let item = await Item.findByIdAndUpdate(id, {
-        ...req.body,
-      });
+      let item = await Item.findByIdAndUpdate(
+        id,
+        {
+          ...req.body,
+        },
+        { new: true }
+      );
       if (!item) {
         return res.status(404).json({ msg: "Item not found" });
       }

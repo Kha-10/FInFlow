@@ -7,6 +7,8 @@ const router = express.Router();
 
 router.get("", PurchaseController.index);
 
+router.get("/chart", PurchaseController.getChartData);
+
 router.post(
   "",
   [

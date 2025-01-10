@@ -19,9 +19,12 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectGroup,
+  SelectLabel,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Trash } from "lucide-react";
+import { CalendarIcon, Trash2, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { useForm, useFieldArray } from "react-hook-form";
 import {
@@ -32,7 +35,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect } from "react";
 import { DevTool } from "@hookform/devtools";
 import { useToast } from "@/hooks/use-toast";
@@ -41,18 +44,18 @@ import axios from "@/helper/axios";
 export default function EditTransactionDialog({
   transaction,
   categories,
-  onUpdate,
   onClose,
   setPurchases,
 }) {
   const form = useForm({
     defaultValues: {
-      type: "expense",
+      transactionType: "outcome",
       category: "",
       description: "",
       date: new Date().toISOString().split("T")[0],
       items: [],
       amount: 0,
+      total: 0,
     },
   });
 
@@ -61,11 +64,25 @@ export default function EditTransactionDialog({
     name: "items",
   });
 
+  const data = [
+    "G",
+    "KG",
+    "L",
+    "ML",
+    "PCS",
+    "PAX",
+    "PACK",
+    "QTY",
+    "LBS",
+    "HOUR",
+    "BOX",
+  ];
+
   const { toast } = useToast();
 
   const watchItems = form.watch("items");
   const total = watchItems?.reduce(
-    (sum, item) => sum + (parseFloat(item.quantity) || 0) * (item.price || 0),
+    (sum, item) => sum + parseFloat(item.price || 0),
     0
   );
 
@@ -83,8 +100,19 @@ export default function EditTransactionDialog({
   if (!transaction) return null;
 
   async function onSubmit(values) {
+    const updatedValues = { ...values };
+    if (!updatedValues.amount) {
+      delete updatedValues.amount;
+    }
+    if (!updatedValues.total) {
+      delete updatedValues.total;
+    }
+
     try {
-      const res = await axios.patch(`/api/purchases/${values._id}`, values);
+      const res = await axios.patch(
+        `/api/purchases/${updatedValues._id}`,
+        updatedValues
+      );
       if (res.status === 200) {
         toast({
           title: "Transaction updated",
@@ -109,6 +137,7 @@ export default function EditTransactionDialog({
         status: "error",
       });
     }
+    console.log(updatedValues);
   }
 
   return (
@@ -246,10 +275,10 @@ export default function EditTransactionDialog({
                                     date ? date.toISOString().split("T")[0] : ""
                                   )
                                 }
-                                disabled={(date) =>
-                                  date > new Date() ||
-                                  date < new Date("1900-01-01")
-                                }
+                                // disabled={(date) =>
+                                //   date > new Date() ||
+                                //   date < new Date("1900-01-01")
+                                // }
                                 initialFocus
                               />
                             </PopoverContent>
@@ -258,26 +287,29 @@ export default function EditTransactionDialog({
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="amount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Amount</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              {...field}
-                              className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {form.formState.defaultValues.purchaseType ===
+                      "Quick Add" && (
+                      <FormField
+                        control={form.control}
+                        name="amount"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Amount</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                {...field}
+                                className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                   </div>
-                  {fields.map((field, index) => (
+                  {/* {fields.map((field, index) => (
                     <div key={field.id} className="space-y-4">
                       <FormField
                         control={form.control}
@@ -340,21 +372,266 @@ export default function EditTransactionDialog({
                         <Trash className="h-4 w-4" />
                       </Button>
                     </div>
-                  ))}
-                  {form.getValues("purchaseType") == "Full Form" && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() =>
-                        append({ name: "", quantity: "", price: 0 })
-                      }
-                      className="mt-2"
-                    >
-                      Add Item
-                    </Button>
+                  ))} */}
+                  {form.formState.defaultValues.purchaseType ===
+                    "Full Form" && (
+                    <div className="space-y-2">
+                      <Card>
+                        <CardHeader className="w-full flex flex-row items-center justify-between">
+                          <CardTitle className="text-base">Items</CardTitle>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="border border-blue-500 text-blue-500"
+                            onClick={() =>
+                              append({
+                                name: "",
+                                price: 0,
+                                pricePerUnit: false,
+                              })
+                            }
+                          >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add item
+                          </Button>
+                        </CardHeader>
+                        {fields.length > 0 && (
+                          <CardContent className="space-y-4">
+                            {fields.map((field, index) => (
+                              <div
+                                key={field.id}
+                                className="rounded-lg border border-gray-200 p-4 space-y-4"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <h3 className="text-lg font-medium">
+                                    Item {index + 1}
+                                  </h3>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => remove(index)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                <div className="w-full flex justify-start space-x-4">
+                                  <FormField
+                                    control={form.control}
+                                    name={`items.${index}.name`}
+                                    render={({ field }) => (
+                                      <FormItem className="w-full">
+                                        <FormLabel>Name</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            className="w-full bg-primary-foreground focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+                                            placeholder="Name"
+                                            autoComplete="off"
+                                            {...field}
+                                            {...form.register(
+                                              `items.${index}.name`,
+                                              {
+                                                required: {
+                                                  value: true,
+                                                  message: "Name is required",
+                                                },
+                                              }
+                                            )}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name={`items.${index}.price`}
+                                    render={({ field }) => (
+                                      <FormItem className="w-full">
+                                        <FormLabel>Price</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            className="w-full bg-primary-foreground focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+                                            type="number"
+                                            placeholder="0"
+                                            min="0"
+                                            step="0.01"
+                                            {...field}
+                                            {...form.register(
+                                              `items.${index}.price`,
+                                              {
+                                                required: {
+                                                  value: true,
+                                                  message: "Price is required",
+                                                },
+                                              }
+                                            )}
+                                            onChange={(e) => {
+                                              const value = e.target.value;
+                                              field.onChange(
+                                                value === ""
+                                                  ? ""
+                                                  : parseFloat(value)
+                                              );
+                                            }}
+                                            value={field.value || ""}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                                <FormField
+                                  control={form.control}
+                                  name={`items.${index}.pricePerUnit`}
+                                  render={({ field }) => (
+                                    <FormItem className="flex items-center space-x-3">
+                                      <FormControl>
+                                        <Checkbox
+                                          className="peer data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 border-gray-300 mt-1"
+                                          checked={field.value}
+                                          onCheckedChange={(checked) => {
+                                            field.onChange(checked);
+                                            if (!checked) {
+                                              const updatedItems = form
+                                                .getValues("items")
+                                                .map((item, idx) => {
+                                                  if (idx === index) {
+                                                    const {
+                                                      unit,
+                                                      unitValue,
+                                                      ...rest
+                                                    } = item;
+                                                    return rest;
+                                                  }
+                                                  return item;
+                                                });
+                                              form.setValue(
+                                                "items",
+                                                updatedItems
+                                              );
+                                            }
+                                          }}
+                                        />
+                                      </FormControl>
+                                      <FormLabel
+                                        htmlFor="pricePerUnit"
+                                        className="text-sm"
+                                      >
+                                        Price per unit
+                                      </FormLabel>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                {form.watch(`items.${index}.pricePerUnit`) && (
+                                  <div className="flex items-center gap-3">
+                                    <FormField
+                                      control={form.control}
+                                      name={`items.${index}.unitValue`}
+                                      render={({ field }) => (
+                                        <FormItem className="w-full min-h-5">
+                                          <FormLabel>Unit value</FormLabel>
+                                          <FormControl>
+                                            <Input
+                                              className="w-full bg-primary-foreground focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+                                              type="number"
+                                              placeholder="0"
+                                              min="0"
+                                              step="0.01"
+                                              {...field}
+                                              {...form.register(
+                                                `items.${index}.unitValue`,
+                                                {
+                                                  required: {
+                                                    value: true,
+                                                    message:
+                                                      "Unit value is required",
+                                                  },
+                                                }
+                                              )}
+                                              onChange={(e) => {
+                                                const value = e.target.value;
+                                                field.onChange(
+                                                  value === ""
+                                                    ? ""
+                                                    : parseFloat(value)
+                                                );
+                                              }}
+                                              value={field.value || ""}
+                                            />
+                                          </FormControl>
+                                          <div className="min-h-[20px]">
+                                            <FormMessage />
+                                          </div>
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <FormField
+                                      control={form.control}
+                                      name={`items.${index}.unit`}
+                                      rules={{
+                                        required: "Please select a unit",
+                                      }}
+                                      render={({ field }) => (
+                                        <FormItem className="w-full">
+                                          <FormLabel>Unit</FormLabel>
+                                          <FormControl>
+                                            <Select
+                                              value={field.value}
+                                              onValueChange={field.onChange}
+                                            >
+                                              <SelectTrigger className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0">
+                                                <SelectValue placeholder="Select unit" />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                <SelectGroup>
+                                                  <SelectLabel>
+                                                    Units
+                                                  </SelectLabel>
+                                                  {data.map((item, i) => (
+                                                    <SelectItem
+                                                      key={i}
+                                                      value={item}
+                                                    >
+                                                      {item}
+                                                    </SelectItem>
+                                                  ))}
+                                                </SelectGroup>
+                                              </SelectContent>
+                                            </Select>
+                                          </FormControl>
+                                          <div className="min-h-[20px]">
+                                            <FormMessage />
+                                          </div>
+                                        </FormItem>
+                                      )}
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </CardContent>
+                        )}
+                      </Card>
+                      {form.formState.errors.items && (
+                        <p className=" text-sm text-red-500 font-medium">
+                          {form.formState.errors.items?.root?.message}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
+              {form.formState.defaultValues.purchaseType === "Full Form" && (
+                <div className="flex justify-between items-center pt-4 border-t mt-6">
+                  <span className="text-lg font-semibold">Total:</span>
+                  <span className="text-lg font-semibold">
+                    ${parseFloat(total).toFixed(2)}
+                  </span>
+                </div>
+              )}
               <div className="mt-4 border-t pt-4">
                 <Button
                   type="submit"
@@ -365,17 +642,7 @@ export default function EditTransactionDialog({
               </div>
             </form>
           </Form>
-          {/* </div> */}
-          {/* </ScrollArea> */}
         </div>
-        {/* <div className="p-4 border-t mt-4">
-          <Button
-            type="submit"
-            className="w-full mt-4 bg-btn hover:bg-blue-600 text-white"
-          >
-            Update Transaction
-          </Button>
-        </div> */}
       </DialogContent>
       <DevTool control={form.control} />
     </Dialog>

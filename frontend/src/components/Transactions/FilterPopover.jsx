@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
@@ -18,12 +19,23 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 
 export default function FilterPopover({
-  filters,
   categories,
-  onFilterChange,
   onResetFilters,
   children,
+  handleDateRangeChange,
+  date,
+  setDate,
+  category,
+  handleCategory,
+  type,
+  handleTransactionType,
 }) {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+  const handleCalendarOpen = (open) => {
+    setIsCalendarOpen(open);
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
@@ -32,25 +44,27 @@ export default function FilterPopover({
           <div className="space-y-2">
             <Label>Date Range</Label>
             <div className="grid gap-2">
-              <Popover>
+              <Popover open={isCalendarOpen} onOpenChange={handleCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     id="date"
                     variant={"outline"}
                     className={cn(
-                      "w-full justify-start text-left font-normal bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0",
-                      !filters.dateRange && "text-muted-foreground"
+                      "w-full justify-start text-left font-normal bg-primary-foreground",
+                      !date.from && "text-muted-foreground",
+                      "focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0",
+                      isCalendarOpen && "ring-2 ring-blue-500 ring-offset-2"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {filters.dateRange?.from ? (
-                      filters.dateRange.to ? (
+                    {date?.from ? (
+                      date.to ? (
                         <>
-                          {format(filters.dateRange.from, "LLL dd, y")} -{" "}
-                          {format(filters.dateRange.to, "LLL dd, y")}
+                          {format(date.from, "LLL dd, y")} -{" "}
+                          {format(date.to, "LLL dd, y")}
                         </>
                       ) : (
-                        format(filters.dateRange.from, "LLL dd, y")
+                        <> {format(date.from, "LLL dd, y")} - Select end date</>
                       )
                     ) : (
                       <span>Pick a date range</span>
@@ -59,16 +73,21 @@ export default function FilterPopover({
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    initialFocus
                     mode="range"
-                    defaultMonth={filters.dateRange?.from}
-                    selected={filters.dateRange}
-                    onSelect={(range) => onFilterChange("dateRange", range)}
+                    defaultMonth={date?.from}
+                    selected={date}
+                    onSelect={(newDate) => {
+                      setDate(newDate || { from: undefined, to: undefined });
+                      if (newDate?.from && newDate.to) {
+                        handleDateRangeChange(newDate);
+                        setIsCalendarOpen(false);
+                      }
+                    }}
                     numberOfMonths={1}
                     classNames={{
                       daySelected: "bg-blue-500 text-white",
-                      dayRangeStart: "bg-green-500 text-white", 
-                      dayRangeEnd: "bg-red-500 text-white", 
+                      dayRangeStart: "bg-green-500 text-white",
+                      dayRangeEnd: "bg-red-500 text-white",
                     }}
                   />
                 </PopoverContent>
@@ -78,17 +97,20 @@ export default function FilterPopover({
           <div className="space-y-2">
             <Label>Category</Label>
             <Select
-              onValueChange={(value) => onFilterChange("category", value)}
-              value={filters.category}
+              onValueChange={(value) => handleCategory(value)}
+              value={category || ""}
             >
-              <SelectTrigger className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0">
+              <SelectTrigger
+                className="w-full
+                  hover:bg-primary-foreground text-foreground bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+              >
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
                 {!!categories &&
                   categories.map((category) => (
-                    <SelectItem key={category._id} value={category.name}>
+                    <SelectItem key={category._id} value={category._id}>
                       {category.name}
                     </SelectItem>
                   ))}
@@ -98,16 +120,16 @@ export default function FilterPopover({
           <div className="space-y-2">
             <Label>Type</Label>
             <Select
-              onValueChange={(value) => onFilterChange("type", value)}
-              value={filters.type}
+              onValueChange={(value) => handleTransactionType(value)}
+              value={type || ""}
             >
-              <SelectTrigger className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0">
+              <SelectTrigger className="w-full bg-primary-foreground hover:bg-primary-foreground text-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="income">Income</SelectItem>
-                <SelectItem value="expense">Expense</SelectItem>
+                <SelectItem value="outcome">Outcome</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -115,7 +137,7 @@ export default function FilterPopover({
             <Button
               onClick={onResetFilters}
               variant="outline"
-              className="w-full"
+              className="w-full border border-blue-500 text-blue-500"
             >
               Reset
             </Button>

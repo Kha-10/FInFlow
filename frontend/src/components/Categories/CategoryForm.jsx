@@ -43,7 +43,7 @@ export default function CategoryForm({
       console.error("Error posting category:", error);
       toast({
         title: "Error",
-        description: error.response.data
+        description: error.response?.data
           ? error.response.data.msg
           : "There was an issue adding the category. Please try again.",
         duration: 3000,

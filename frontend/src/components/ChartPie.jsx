@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { TrendingUp } from "lucide-react";
 import { Label, Pie, PieChart } from "recharts";
 
@@ -15,6 +15,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Button } from "./ui/button";
+import { useSearchParams } from "react-router-dom";
 
 const chartData = [
   { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
@@ -50,16 +52,86 @@ const chartConfig = {
   },
 };
 
-export default function ChartPie() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
-  }, []);
+const generateColor = (index) => {
+  const hue = (index * 137.508) % 360;
+  return `hsl(${hue}, 70%, 50%)`;
+};
+
+export default function ChartPie({ chartPie }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sortBy = searchParams.get("sortBy") || "outcome";
+  const totalExpenses = useMemo(() => {
+    return chartPie.reduce((acc, curr) => acc + curr?.total, 0);
+  }, [chartPie]);
+
+  const chartConfig = useMemo(() => {
+    const config = {
+      total: { label: "Total" },
+    };
+    chartPie.forEach((item, index) => {
+      config[item.category.toLowerCase()] = {
+        label: item.category,
+        color: generateColor(index),
+      };
+    });
+    return config;
+  }, [chartPie]);
+
+  const chartData = useMemo(() => {
+    return chartPie.map((item, index) => ({
+      ...item,
+      fill: generateColor(index),
+    }));
+  }, [chartPie,sortBy]);
+
+  const handleChange = (data) => {
+    console.log("data",data);
+    searchParams.set("sortBy", data);
+    setSearchParams(searchParams);
+  };
 
   return (
-    <Card className=" xl:w-[560px] xl:h-[378px] w-full flex flex-col">
-      <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+    // <Card className=" xl:w-[560px] xl:h-[378px] w-full flex flex-col">
+    <Card className="w-full flex flex-col bg-white dark:bg-gray-800">
+      <CardHeader className="pb-0">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <div>
+            <CardTitle>Financial Breakdown</CardTitle>
+            <CardDescription>
+              {sortBy === "income" ? "Income" : "Outcome"} Distribution
+            </CardDescription>
+          </div>
+          <div
+            className="inline-flex items-center rounded-md  border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 p-1 w-fit"
+            role="group"
+            aria-label="Toggle between income and outcome view"
+          >
+            <Button
+              variant={sortBy === "income" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => handleChange("income")}
+              className={`transition-colors ${
+                sortBy === "income"
+                  ? "bg-white dark:bg-gray-800 text-foreground border border-gray-200 dark:border-gray-600 hover:bg-primary-foreground shadow-sm"
+                  : "hover:bg-background/50 hover:text-foreground"
+              }`}
+            >
+              Income
+            </Button>
+            <Button
+              variant={sortBy === "outcome" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => handleChange("outcome")}
+              className={`transition-colors ${
+                sortBy === "outcome"
+                  ? "bg-white dark:bg-gray-800 text-foreground border border-gray-200 dark:border-gray-600 hover:bg-primary-foreground shadow-sm"
+                  : "hover:bg-background/50 hover:text-foreground"
+              }`}
+            >
+              Outcome
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -73,8 +145,8 @@ export default function ChartPie() {
             />
             <Pie
               data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
+              dataKey="total"
+              nameKey="category"
               innerRadius={60}
               strokeWidth={5}
             >
@@ -93,14 +165,14 @@ export default function ChartPie() {
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {totalVisitors.toLocaleString()}
+                          {totalExpenses.toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          Total {sortBy === "income" ? "Income" : "Outcome"}
                         </tspan>
                       </text>
                     );
@@ -113,10 +185,12 @@ export default function ChartPie() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          Total {sortBy === "income" ? "Income" : "Outcome"}: $
+          {totalExpenses.toLocaleString()}
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Showing distribution of{" "}
+          {sortBy === "income" ? "income" : "outcome"} categories
         </div>
       </CardFooter>
     </Card>

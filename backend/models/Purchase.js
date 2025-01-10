@@ -2,45 +2,6 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const itemSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
-  pricePerUnit: {
-    type: Boolean,
-    required: true,
-  },
-  unit: {
-    type: String,
-    validate: {
-      validator: function (value) {
-        if (this.pricePerUnit) {
-          return value !== undefined && value !== null;
-        }
-        return true;
-      },
-      message: "Unit is required",
-    },
-  },
-  unitValue: {
-    type: Number,
-    validate: {
-      validator: function (value) {
-        if (this.pricePerUnit) {
-          return value !== undefined && value !== null;
-        }
-        return true;
-      },
-      message: "Unit value is required",
-    },
-  },
-});
-
 const PurchaseSchema = new Schema(
   {
     purchaseType: {
@@ -78,18 +39,17 @@ const PurchaseSchema = new Schema(
         message: "Amount is required for Quick Add purchases",
       },
     },
-    items: {
-      type: [itemSchema],
-      validate: {
-        validator: function (value) {
-          if (this.purchaseType === "Full Form") {
-            return Array.isArray(value) && value.length > 0;
-          }
-          return true;
-        },
-        message: "Items are required for Full Form purchases",
+    items: [
+      {
+        name: { type: String, required: true },
+        price: { type: Number, required: true },
+        pricePerUnit: { type: Boolean, required: true },
+        unitValue: { type: Number },
+        unit: { type: String },
       },
-    },
+    ],
+    total: { type: Number },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   },
   { timestamps: true }
 );

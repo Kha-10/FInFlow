@@ -41,10 +41,10 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { useLocation } from "react-router-dom";
 import axios from "@/helper/axios";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useSearchParams } from "react-router-dom";
 
 export default function TransactionManagement() {
   const [filters, setFilters] = useState({
@@ -54,35 +54,42 @@ export default function TransactionManagement() {
   });
   const [purchases, setPurchases] = useState(null);
   const [categories, setCategories] = useState(null);
+  const [items, setItems] = useState(null);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [deletingTransaction, setDeletingTransaction] = useState(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [pagination, setPagination] = useState([]);
+  const [date, setDate] = useState({
+    from: undefined,
+    to: undefined,
+  });
 
-  const location = useLocation();
-  const searchQuery = new URLSearchParams(location.search);
-  const page = parseInt(searchQuery.get("page"))
-    ? parseInt(searchQuery.get("page"))
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = parseInt(searchParams.get("page"))
+    ? parseInt(searchParams.get("page"))
     : 1;
-  const query = searchQuery.get("search");
-  const sort = searchQuery.get("sort") ? searchQuery.get("sort") : "createdAt";
-  const sortDirection = searchQuery.get("sortDirection")
-    ? searchQuery.get("sortDirection")
-    : "desc";
+  const dateRange = searchParams.get("dateRange");
+  const category = searchParams.get("category");
+  const type = searchParams.get("type");
+
+  const filteredCategory = categories?.find((f) => f._id === category);
 
   const { toast } = useToast();
 
   const getPurhcases = async () => {
     try {
       const response = await axios.get(
-        `/api/purchases?page=${page}&sort=${sort}&sortDirection=${sortDirection}${
-          query ? `&search=${query}` : ""
+        `/api/purchases?page=${page}${
+          dateRange ? `&dateRange=${dateRange}` : ""
+        }${category ? `&category=${category}` : ""}${
+          type ? `&type=${type}` : ""
         }`
       );
       if (response.status === 200) {
         console.log(response);
         setPurchases(response.data.data.purchases);
         setCategories(response.data.data.categories);
+        setItems(response.data.data.items);
         setPagination(response.data.links);
       }
     } catch (error) {
@@ -94,11 +101,13 @@ export default function TransactionManagement() {
 
   useEffect(() => {
     getPurhcases();
-  }, [page, query, sort, sortDirection]);
+  }, [page, dateRange, category, type]);
 
-  async function onDelete(id) {
+  async function onDelete() {
     try {
-      const res = await axios.delete(`/api/purchases/${deletingTransaction._id}`);
+      const res = await axios.delete(
+        `/api/purchases/${deletingTransaction._id}`
+      );
       if (res.status === 200) {
         toast({
           title: "Purchase deleted",
@@ -121,157 +130,195 @@ export default function TransactionManagement() {
     }
   }
 
-  const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleRemoveFilter = (key) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: key === "dateRange" ? undefined : "all",
-    }));
-  };
-
   const resetFilters = () => {
-    setFilters({
-      dateRange: undefined,
-      category: "all",
-      type: "all",
-    });
+    searchParams.delete("dateRange");
+    searchParams.delete("category");
+    searchParams.delete("type");
+    setSearchParams(searchParams);
+    setDate({});
   };
-  console.log(purchases);
+
+  const handleDateRangeChange = ({ from, to }) => {
+    const utcFrom = new Date(
+      Date.UTC(from.getFullYear(), from.getMonth(), from.getDate())
+    );
+    const utcTo = new Date(
+      Date.UTC(to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999)
+    );
+
+    const formattedFrom = utcFrom.toISOString();
+    const formattedTo = utcTo.toISOString();
+
+    const dateRange = `${formattedFrom},${formattedTo}`;
+
+    searchParams.set("dateRange", dateRange);
+    searchParams.delete("filterRangeBy");
+    setSearchParams(searchParams);
+  };
+
+  const handleCategory = (id) => {
+    searchParams.set("category", id);
+    setSearchParams(searchParams);
+  };
+
+  const handleTransactionType = (value) => {
+    searchParams.set("type", value);
+    setSearchParams(searchParams);
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Transactions
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Manage your recent transactions
-          </p>
-        </div>
-        <FilterPopover
-          filters={filters}
-          categories={categories}
-          onFilterChange={handleFilterChange}
-          onResetFilters={resetFilters}
-        >
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 border-dashed border-btn"
+    <div className="space-y-6 pt-3">
+      <div className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-text-foreground">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">
+              Transactions
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Manage your recent transactions
+            </p>
+          </div>
+          <FilterPopover
+            categories={categories}
+            onResetFilters={resetFilters}
+            handleDateRangeChange={handleDateRangeChange}
+            date={date}
+            setDate={setDate}
+            category={category}
+            handleCategory={handleCategory}
+            type={type}
+            handleTransactionType={handleTransactionType}
           >
-            <Filter className="mr-2 h-4 w-4 text-btn" />
-            <span className="text-btn">Filters</span>
-          </Button>
-        </FilterPopover>
-      </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 border-dashed border-btn"
+            >
+              <Filter className="mr-2 h-4 w-4 text-btn" />
+              <span className="text-btn">Filters</span>
+            </Button>
+          </FilterPopover>
+        </div>
 
-      <FilterBadges filters={filters} onRemoveFilter={handleRemoveFilter} />
+        <FilterBadges
+          date={date}
+          filteredCategory={filteredCategory}
+          type={type}
+          searchParams={searchParams}
+          setSearchParams={setSearchParams}
+          clearDate={() => setDate({})}
+        />
 
-      <ScrollArea>
-        <div className="space-y-4">
-          {!!purchases &&
-            purchases.map((purchase) => (
-              <Card key={purchase._id} className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-4">
-                    <div
-                      className={cn(
-                        "flex h-10 w-10 items-center justify-center rounded-full",
-                        purchase.transactionType === "income"
-                          ? "bg-green-500/20 text-green-500"
-                          : "bg-red-500/20 text-red-500"
-                      )}
-                    >
-                      {purchase.transactionType === "income" ? (
-                        <ArrowUpRight className="h-5 w-5" />
-                      ) : (
-                        <ArrowDownRight className="h-5 w-5" />
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {purchase.description}
-                      </p>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <span>
-                          {format(new Date(purchase.date), "MMM d, yyyy")}
-                        </span>
-                        <ChevronRight className="h-4 w-4 mx-1" />
-                        <Badge variant="secondary" className="rounded-md">
-                          {purchase.category?.name}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="text-right">
-                      <p
+        <ScrollArea>
+          <div className="space-y-4 py-4">
+            {!!purchases &&
+              purchases.map((purchase) => (
+                <Card key={purchase._id} className="p-4 bg-gray-50 dark:bg-gray-700 hover:shadow-md transition-all  dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start space-x-4">
+                      <div
                         className={cn(
-                          "text-sm font-medium",
+                          "flex h-10 w-10 items-center justify-center rounded-full",
                           purchase.transactionType === "income"
-                            ? "text-green-500"
-                            : "text-red-500"
+                            ? "bg-green-500/20 text-green-500"
+                            : "bg-red-500/20 text-red-500"
                         )}
                       >
-                        {purchase.transactionType === "income" ? "+" : "-"}$
-                        {purchase.amount && Number(purchase.amount).toFixed(2)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {purchase.items?.length >= 1
-                          ? `${purchase.items.length} `
-                          : 0}{" "}
-                        {purchase.items?.length === 1 ? "item" : "items"}
-                      </p>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => setEditingTransaction(purchase)}
-                        >
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setDeletingTransaction(purchase)}
-                          className="text-red-500 focus:text-red-500"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-
-                {/* Items Section */}
-                {!!purchase.items && (
-                  <div className="mt-4 space-y-2">
-                    {purchase.items?.map((item, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between text-sm px-4 py-2 rounded-lg bg-muted/50"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium">{item.name}</span>
-                          <span className="text-muted-foreground">
-                            ×{item.quantity}
-                          </span>
-                        </div>
-                        <span>${item.price.toFixed(2)}</span>
+                        {purchase.transactionType === "income" ? (
+                          <ArrowUpRight className="h-5 w-5" />
+                        ) : (
+                          <ArrowDownRight className="h-5 w-5" />
+                        )}
                       </div>
-                    ))}
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {purchase.description}
+                        </p>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <span>
+                            {format(new Date(purchase.date), "MMM d, yyyy")}
+                          </span>
+                          <ChevronRight className="h-4 w-4 mx-1" />
+                          <Badge variant="secondary" className="rounded-md bg-gray-200 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600">
+                            {purchase.category?.name}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-4">
+                      <div className="text-right">
+                        <p
+                          className={cn(
+                            "text-sm font-medium",
+                            purchase.transactionType === "income"
+                              ? "text-green-500"
+                              : "text-red-500"
+                          )}
+                        >
+                          {purchase.transactionType === "income" ? "+" : "-"}$
+                          {(purchase.amount || purchase.total) &&
+                            Number(purchase.amount || purchase.total).toFixed(
+                              2
+                            )}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {purchase.items?.length >= 1
+                            ? `${purchase.items.length} `
+                            : 0}{" "}
+                          {purchase.items?.length === 1 ? "item" : "items"}
+                        </p>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => setEditingTransaction(purchase)}
+                          >
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setDeletingTransaction(purchase)}
+                            className="text-red-500 focus:text-red-500"
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                )}
-              </Card>
-            ))}
-        </div>
-      </ScrollArea>
+
+                  {/* Items Section */}
+                  {!!purchase.items && (
+                    <div className="mt-4 space-y-2">
+                      {purchase.items?.map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between text-sm px-4 py-2 rounded-lg bg-muted"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium">{item.name}</span>
+                            <span className="text-muted-foreground">
+                              ×{item.unitValue ? item.unitValue : 1}
+                            </span>
+                          </div>
+                          <span>${item.price.toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              ))}
+          </div>
+        </ScrollArea>
+      </div>
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetTrigger asChild>
           <Button
@@ -295,19 +342,14 @@ export default function TransactionManagement() {
                 setIsSheetOpen={setIsSheetOpen}
                 setPurchases={setPurchases}
                 categories={categories}
+                itemlist={items}
               />
             </div>
           </div>
         </SheetContent>
       </Sheet>
       {!!pagination && pagination.totalPages > 1 && (
-        <PaginationControls
-          pagination={pagination}
-          currentPage={page}
-          query={query}
-          sort={sort}
-          sortDirection={sortDirection}
-        />
+        <PaginationControls pagination={pagination} currentPage={page} />
       )}
       <EditTransactionDialog
         transaction={editingTransaction}
@@ -335,7 +377,12 @@ export default function TransactionManagement() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={onDelete} className="bg-red-500 text-white hover:bg-red-600">Delete</AlertDialogAction>
+            <AlertDialogAction
+              onClick={onDelete}
+              className="bg-red-500 text-white hover:bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

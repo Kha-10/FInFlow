@@ -8,14 +8,14 @@ const Sidebar = () => {
   const isActive = (path) => location.pathname === path;
 
   const menuItems = [
-    { icon:LayoutDashboard , label: "Dashboard", path: "/" },
+    { icon:LayoutDashboard , label: "Dashboard", path: "/dashboard" },
     { icon: ShoppingCart, label: "Purchases", path: "/purchases" },
   ];
 
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex flex-col w-64 bg-background text-foreground antialiased border border-border h-screen fixed left-0 top-15">
+      <div className="hidden md:flex flex-col w-64 bg-white dark:bg-gray-800 text-foreground antialiased border border-border h-screen fixed left-0 top-15">
         {/* <div className="p-4">
           <h1 className="text-xl font-bold">Purchase Tracker</h1>
         </div> */}
@@ -26,7 +26,7 @@ const Sidebar = () => {
               to={item.path}
               className={`flex items-center px-4 py-3 rounded-lg ${
                 isActive(item.path)
-                  ? "bg-muted text-btn"
+                  ? " text-btn"
                   : "hover:bg-primary-foreground"
               }`}
             >
@@ -42,7 +42,7 @@ const Sidebar = () => {
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <div className="z-50 md:hidden fixed bottom-0 left-0 right-0 bg-background text-foreground antialiased">
+      <div className="z-50 md:hidden fixed bottom-0 left-0 right-0 bg-card text-foreground antialiased">
         <nav className="flex justify-around">
           {menuItems.map((item) => (
             <Link

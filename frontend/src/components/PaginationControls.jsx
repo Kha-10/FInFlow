@@ -11,9 +11,6 @@ import {
 } from "@/components/ui/pagination";
 
 export default function PaginationControls({
-  query,
-  sort,
-  sortDirection,
   currentPage,
   pagination,
 }) {
@@ -22,11 +19,6 @@ export default function PaginationControls({
   const handlePageChange = (page) => {
     const searchParams = new URLSearchParams();
     searchParams.set("page", page);
-    searchParams.set("sort", sort);
-    searchParams.set("sortDirection", sortDirection);
-    if (query) {
-      searchParams.set("search", query);
-    }
     navigate(`?${searchParams.toString()}`);
   };
 

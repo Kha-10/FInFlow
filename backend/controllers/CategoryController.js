@@ -6,9 +6,14 @@ const CategoryController = {
     let limit = 10;
     let page = req.query.page || 1;
     let searchQuery = req.query.search || "";
-    const searchCondition = searchQuery
-      ? { name: { $regex: searchQuery, $options: "i" } }
-      : {};
+    const userId = req.user._id;
+
+    const searchCondition = {
+      userId,
+    };
+    if (searchQuery) {
+      searchCondition.name = { $regex: searchQuery, $options: "i" };
+    }
     const sort = req.query.sort || "createdAt";
     const sortDirection = req.query.sortDirection === "asc" ? 1 : -1;
     const sortObject =
@@ -26,8 +31,8 @@ const CategoryController = {
       nextPage: totalPagesCount == page ? false : true,
       previousPage: page == 1 ? false : true,
       currentPage: page,
-      totalPages : totalPagesCount,
-      limit : limit,
+      totalPages: totalPagesCount,
+      limit: limit,
       loopableLinks: [],
     };
 
@@ -45,13 +50,14 @@ const CategoryController = {
   store: async (req, res) => {
     const { name } = req.body;
     try {
-      const existingCategory = await Category.findOne({ name });
+      const userId = req.user._id;
+      const existingCategory = await Category.findOne({ name, userId });
 
       if (existingCategory) {
         return res.status(409).json({ msg: "Category name already exists" });
       }
 
-      const category = await Category.create({ name });
+      const category = await Category.create({ name, userId });
 
       return res.json(category);
     } catch (error) {
@@ -95,9 +101,13 @@ const CategoryController = {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ msg: "Not a valid id" });
       }
-      let category = await Category.findByIdAndUpdate(id, {
-        ...req.body,
-      });
+      let category = await Category.findByIdAndUpdate(
+        id,
+        {
+          ...req.body,
+        },
+        { new: true }
+      );
       if (!category) {
         return res.status(404).json({ msg: "Category not found" });
       }
