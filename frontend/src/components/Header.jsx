@@ -27,7 +27,7 @@ import axios from "@/helper/axios";
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
-  const { user, dispatch } = useContext(AuthContext);
+//   const { user, dispatch } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -42,11 +42,12 @@ const Header = () => {
   };
 
   const logout = async () => {
-    let res = await axios.post("/api/users/logout");
-    if (res.status === 200) {
-      dispatch({ type: "LOGOUT" });
-      navigate("/login");
-    }
+    // let res = await axios.post("/api/users/logout");
+    // if (res.status === 200) {
+    //   dispatch({ type: "LOGOUT" });
+    //   navigate("/login");
+    // }
+    console.log('gg');
   };
 
   return (
@@ -86,17 +87,20 @@ const Header = () => {
                 variant="outline"
                 className="relative h-10 w-10 text-white hover:text-white rounded-full bg-blue-400 hover:bg-blue-400/90"
               >
-                <p>{user.username.charAt(0).toUpperCase()}</p>
+                {/* <p>{user.username.charAt(0).toUpperCase()}</p> */}
+                <p>gg</p>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {user.username}
+                    {/* {user.username} */}
+                    gg
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user.email}
+                    {/* {user.email} */}
+                    gg
                   </p>
                 </div>
               </DropdownMenuLabel>

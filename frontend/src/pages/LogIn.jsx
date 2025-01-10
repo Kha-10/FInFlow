@@ -22,7 +22,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState(null);
 
   const navigate = useNavigate();
-  let { dispatch } = useContext(AuthContext);
+//   let { dispatch } = useContext(AuthContext);
 
   const form = useForm({
     defaultValues: {
@@ -67,12 +67,13 @@ export default function LoginPage() {
 
   const onSubmit = async (values) => {
     try {
-      setErrors(null);
-      const res = await axios.post("/api/users/login", values);
-      if (res.status === 200) {
-        dispatch({ type: "LOGIN", payload: res.data.user });
-        navigate("/dashboard");
-      }
+    //   setErrors(null);
+    //   const res = await axios.post("/api/users/login", values);
+    //   if (res.status === 200) {
+    //     dispatch({ type: "LOGIN", payload: res.data.user });
+    //     navigate("/dashboard");
+    //   }
+    console.log('gg');
     } catch (error) {
       console.log(error);
       setErrors(error.response.data?.error);
