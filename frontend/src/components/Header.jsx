@@ -47,7 +47,6 @@ const Header = () => {
       dispatch({ type: "LOGOUT" });
       navigate("/login");
     }
-    console.log('gg');
   };
 
   return (
@@ -87,20 +86,20 @@ const Header = () => {
                 variant="outline"
                 className="relative h-10 w-10 text-white hover:text-white rounded-full bg-blue-400 hover:bg-blue-400/90"
               >
-                <p>{user.username.charAt(0).toUpperCase()}</p>
-                {/* <p>gg</p> */}
+                {/* <p>{user.username.charAt(0).toUpperCase()}</p> */}
+                <p>gg</p>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {user.username}
-                    {/* gg */}
+                    {/* {user.username} */}
+                    gg
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user.email}
-                    {/* gg */}
+                    {/* {user.email} */}
+                    gg
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -121,6 +120,11 @@ const Header = () => {
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
+                <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={()=> navigate('/register')}>
+                {/* <LogOut className="mr-2 h-4 w-4" /> */}
+                <span>Register</span>
                 <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
               </DropdownMenuItem>
             </DropdownMenuContent>
