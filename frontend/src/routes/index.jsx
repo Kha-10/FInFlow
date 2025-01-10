@@ -14,7 +14,7 @@ import { AuthContext } from "@/contexts/AuthContext";
 
 function index() {
   let { user } = useContext(AuthContext);
-
+    console.log('user',user);
   const router = createBrowserRouter([
     {
       path: "/",
@@ -22,23 +22,23 @@ function index() {
       children: [
         {
           path: "/dashboard",
-          element: user ? <Home /> : <Navigate to={"/login"} />,
-        //   element:  <Home /> ,
+        //   element: user ? <Home /> : <Navigate to={"/login"} />,
+            element:  <Home /> ,
         },
         {
           path: "/purchases",
-          element: user ? <AddToPurchases /> : <Navigate to={"/login"} />,
-        //   element:  <AddToPurchases /> ,
+        //   element: user ? <AddToPurchases /> : <Navigate to={"/login"} />,
+            element:  <AddToPurchases /> ,
         },
         {
           path: "/login",
-          element: !user ? <LogIn /> : <Navigate to={"/dashboard"} />,
-        //   element: <LogIn /> ,
+          //   element: !user ? <LogIn /> : <Navigate to={"/dashboard"} />,
+          element: <LogIn />,
         },
         {
           path: "/register",
-          element: !user ? <Register /> : <Navigate to={"/dashboard"} />,
-        //   element:  <Register /> ,
+          //   element: !user ? <Register /> : <Navigate to={"/dashboard"} />,
+          element: <Register />,
         },
       ],
     },
