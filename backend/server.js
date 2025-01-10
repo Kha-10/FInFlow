@@ -19,10 +19,10 @@ app.use(
   })
 );
 
-const mongoURL =
-  "mongodb+srv://finflow:finflow123@finflow-cluster.jwtny.mongodb.net/?retryWrites=true&w=majority&appName=FInflow-Cluster";
-
-mongoose.connect(mongoURL).then(() => {
+// const mongoURL =
+//   "mongodb+srv://finflow:finflow123@finflow-cluster.jwtny.mongodb.net/?retryWrites=true&w=majority&appName=FInflow-Cluster";
+const uri = process.env.MONGODB_URI;
+mongoose.connect(uri).then(() => {
   console.log(`connected to db`);
   app.listen(process.env.PORT, () => {
     console.log(`app is running on localhost:${process.env.PORT}`);
