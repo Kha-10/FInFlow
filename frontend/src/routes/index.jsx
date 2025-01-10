@@ -22,19 +22,23 @@ function index() {
       children: [
         {
           path: "/dashboard",
-          element: user ? <Home /> : <Navigate to={"/login"} />,
+        //   element: user ? <Home /> : <Navigate to={"/login"} />,
+          element:  <Home /> ,
         },
         {
           path: "/purchases",
-          element: user ? <AddToPurchases /> : <Navigate to={"/login"} />,
+        //   element: user ? <AddToPurchases /> : <Navigate to={"/login"} />,
+          element:  <AddToPurchases /> ,
         },
         {
           path: "/login",
-          element: !user ? <LogIn /> : <Navigate to={"/dashboard"} />,
+        //   element: !user ? <LogIn /> : <Navigate to={"/dashboard"} />,
+          element: <LogIn /> ,
         },
         {
           path: "/register",
-          element: !user ? <Register /> : <Navigate to={"/dashboard"} />,
+        //   element: !user ? <Register /> : <Navigate to={"/dashboard"} />,
+          element:  <Register /> ,
         },
       ],
     },
