@@ -36,7 +36,7 @@ const AuthContextProvider = ({ children }) => {
       } catch (e) {
         dispatch({ type: "LOGOUT" });
       } finally {
-        setLoading(false); // Stop loading after the request completes
+        setLoading(false); 
       }
     };
 
