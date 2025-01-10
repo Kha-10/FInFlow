@@ -23,25 +23,25 @@ const AuthContextProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     try {
-  //       const res = await axios.get("/api/users/me");
-  //       const user = res.data;
-  //       if (user) {
-  //         dispatch({ type: "LOGIN", payload: user });
-  //       } else {
-  //         dispatch({ type: "LOGOUT" });
-  //       }
-  //     } catch (e) {
-  //       dispatch({ type: "LOGOUT" });
-  //     } finally {
-  //       setLoading(false); 
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get("/api/users/me");
+        const user = res.data;
+        if (user) {
+          dispatch({ type: "LOGIN", payload: user });
+        } else {
+          dispatch({ type: "LOGOUT" });
+        }
+      } catch (e) {
+        dispatch({ type: "LOGOUT" });
+      } finally {
+        setLoading(false); 
+      }
+    };
 
-  //   fetchUser();
-  // }, []);
+    fetchUser();
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>; // Or a loading spinner
