@@ -71,7 +71,7 @@ export default function LoginPage() {
       const res = await axios.post("/api/users/login", values);
       if (res.status === 200) {
         dispatch({ type: "LOGIN", payload: res.data.user });
-        navigate("/dashboard");
+        navigate("/");
       }
     console.log('gg');
     } catch (error) {
