@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
-import Summary from "@/components/summary";
+import { useState, useEffect } from "react";
+import Summary from "@/components/Summary";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import ChartArea from "@/components/ChartArea";
