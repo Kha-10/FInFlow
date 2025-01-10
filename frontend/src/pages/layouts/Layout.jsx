@@ -7,6 +7,7 @@ import { AuthContext } from "@/contexts/AuthContext";
 
 export default function Layout() {
   let { user } = useContext(AuthContext);
+  
   return (
     <div>
       {/* {user && <Header />} */}

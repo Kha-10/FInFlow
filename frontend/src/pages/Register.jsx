@@ -72,7 +72,7 @@ export default function Register() {
       const res = await axios.post("/api/users/register", values);
       if (res.status === 200) {
         dispatch({ type: "LOGIN", payload: res.data.user });
-        navigate("/dashboard");
+        navigate("/");
       }
     } catch (error) {
       setErrors(error.response.data?.errors);
