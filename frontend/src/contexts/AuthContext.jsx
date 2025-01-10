@@ -25,7 +25,7 @@ const AuthContextProvider = ({ children }) => {
 
     useEffect(() => {
         try {
-            axios.get('/api/users/me').then(res => {
+            axios.get('https://fin-flow-drab.vercel.app/api/users/me').then(res => {
                 let user = res.data;
                 if (user) {
                     dispatch({ type: 'LOGIN', payload: user })
