@@ -2,15 +2,34 @@
     "version": 2,
     "builds": [
       {
-        "src": "*.js",
+        "src": "backend/server.js",
         "use": "@vercel/node"
       }
     ],
     "routes": [
       {
+        "src": "/api/items(.*)",
+        "dest": "backend/server.js"
+      },
+      {
+        "src": "/api/categories(.*)",
+        "dest": "backend/server.js"
+      },
+      {
+        "src": "/api/purchases(.*)",
+        "dest": "backend/server.js"
+      },
+      {
+        "src": "/api/users(.*)",
+        "dest": "backend/server.js"
+      },
+      {
+        "src": "/set-cookie",
+        "dest": "backend/server.js"
+      },
+      {
         "src": "/(.*)",
-        "dest": "/"
+        "dest": "backend/server.js"
       }
     ]
   }
-  
