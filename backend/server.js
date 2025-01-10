@@ -19,8 +19,6 @@ app.use(
   })
 );
 
-console.log("origin",process.env.ORIGIN);
-
 // const mongoURL =
 //   "mongodb+srv://finflow:finflow123@finflow-cluster.jwtny.mongodb.net/?retryWrites=true&w=majority&appName=FInflow-Cluster";
 const uri = process.env.MONGODB_URI;
