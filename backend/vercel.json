@@ -8,28 +8,24 @@
     ],
     "routes": [
       {
-        "src": "/api/items(.*)",
-        "dest": "backend/server.js"
-      },
-      {
-        "src": "/api/categories(.*)",
-        "dest": "backend/server.js"
-      },
-      {
-        "src": "/api/purchases(.*)",
-        "dest": "backend/server.js"
-      },
-      {
-        "src": "/api/users(.*)",
-        "dest": "backend/server.js"
-      },
-      {
-        "src": "/set-cookie",
-        "dest": "backend/server.js"
+        "src": "/api/(.*)",
+        "headers": {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Credentials": "true"
+        },
+        "dest": "backend/server.js",
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
       },
       {
         "src": "/(.*)",
         "dest": "backend/server.js"
       }
-    ]
+    ],
+    "env": {
+      "MONGODB_URI": "@mongodb_uri",
+      "PORT": "@port",
+      "ORIGIN": "@origin"
+    }
   }
