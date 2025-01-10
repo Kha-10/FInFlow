@@ -21,7 +21,7 @@ function index() {
       element: <Layout />,
       children: [
         {
-          path: "/dashboard",
+          path: "/",
         //   element: user ? <Home /> : <Navigate to={"/login"} />,
             element:  <Home /> ,
         },
