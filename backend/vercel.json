@@ -8,24 +8,54 @@
     ],
     "routes": [
       {
-        "src": "/api/(.*)",
+        "src": "/api/items/(.*)",
         "headers": {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
           "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
           "Access-Control-Allow-Credentials": "true"
         },
-        "dest": "backend/server.js",
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        "dest": "/backend/server.js"
+      },
+      {
+        "src": "/api/categories/(.*)",
+        "headers": {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Credentials": "true"
+        },
+        "dest": "/backend/server.js"
+      },
+      {
+        "src": "/api/purchases/(.*)",
+        "headers": {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Credentials": "true"
+        },
+        "dest": "/backend/server.js"
+      },
+      {
+        "src": "/api/users/(.*)",
+        "headers": {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Credentials": "true"
+        },
+        "dest": "/backend/server.js"
       },
       {
         "src": "/(.*)",
-        "dest": "backend/server.js"
+        "dest": "/backend/server.js"
       }
     ],
     "env": {
       "MONGODB_URI": "@mongodb_uri",
       "PORT": "@port",
-      "ORIGIN": "@origin"
+      "ORIGIN": "@origin",
+      "JWT_SECRET": "@jwt_secret"
     }
   }
