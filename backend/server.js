@@ -37,11 +37,11 @@ app.get("/", (req, res) => {
   res.json({ msg: "hello" });
 });
 
-app.use("/api/items", itemsRoutes);
+app.use("/api/items", AuthMiddleware, itemsRoutes);
 
-app.use("/api/categories", categoriesRoutes);
+app.use("/api/categories", AuthMiddleware, categoriesRoutes);
 
-app.use("/api/purchases", purchasesRoutes);
+app.use("/api/purchases", AuthMiddleware, purchasesRoutes);
 
 app.use("/api/users", usersRoutes);
 
