@@ -73,7 +73,10 @@ export default function LoginPage() {
         dispatch({ type: "LOGIN", payload: res.data.user });
         navigate("/");
       }
-    console.log('gg');
+      if(res.data?.token) {
+        localStorage.setItem('twj',res.data?.token)
+      }
+    console.log('gg',res.data);
     } catch (error) {
       console.log(error);
       setErrors(error.response.data?.error);

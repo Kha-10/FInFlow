@@ -11,7 +11,7 @@ import {
   SheetTrigger,
   SheetTitle,
   SheetHeader,
-  SheetDescription
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { Plus, X } from "lucide-react";
 
@@ -33,10 +33,16 @@ export default function ItemManagement() {
 
   const getItems = async () => {
     try {
+      const token = localStorage.getItem("twj");
       const response = await axios.get(
         `/api/items?page=${page}&sort=${sort}&sortDirection=${sortDirection}${
           query ? `&search=${query}` : ""
-        }`
+        }`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (response.status === 200) {
         console.log(response);

@@ -109,9 +109,15 @@ export default function EditTransactionDialog({
     }
 
     try {
+      const token = localStorage.getItem("twj");
       const res = await axios.patch(
         `/api/purchases/${updatedValues._id}`,
-        updatedValues
+        updatedValues,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (res.status === 200) {
         toast({

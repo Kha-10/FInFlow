@@ -78,12 +78,18 @@ export default function TransactionManagement() {
 
   const getPurhcases = async () => {
     try {
+      const token = localStorage.getItem("twj");
       const response = await axios.get(
         `/api/purchases?page=${page}${
           dateRange ? `&dateRange=${dateRange}` : ""
         }${category ? `&category=${category}` : ""}${
           type ? `&type=${type}` : ""
-        }`
+        }`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (response.status === 200) {
         console.log(response);
@@ -105,8 +111,14 @@ export default function TransactionManagement() {
 
   async function onDelete() {
     try {
+      const token = localStorage.getItem("twj");
       const res = await axios.delete(
-        `/api/purchases/${deletingTransaction._id}`
+        `/api/purchases/${deletingTransaction._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (res.status === 200) {
         toast({
@@ -213,7 +225,10 @@ export default function TransactionManagement() {
           <div className="space-y-4 py-4">
             {!!purchases &&
               purchases.map((purchase) => (
-                <Card key={purchase._id} className="p-4 bg-gray-50 dark:bg-gray-700 hover:shadow-md transition-all  dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500">
+                <Card
+                  key={purchase._id}
+                  className="p-4 bg-gray-50 dark:bg-gray-700 hover:shadow-md transition-all  dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4">
                       <div
@@ -239,7 +254,10 @@ export default function TransactionManagement() {
                             {format(new Date(purchase.date), "MMM d, yyyy")}
                           </span>
                           <ChevronRight className="h-4 w-4 mx-1" />
-                          <Badge variant="secondary" className="rounded-md bg-gray-200 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600">
+                          <Badge
+                            variant="secondary"
+                            className="rounded-md bg-gray-200 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
+                          >
                             {purchase.category?.name}
                           </Badge>
                         </div>

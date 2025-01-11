@@ -25,7 +25,12 @@ const ItemForm = ({ setItems, setIsItemSheetOpen }) => {
 
   async function onSubmit(values) {
     try {
-      const res = await axios.post("/api/items", values);
+      const token = localStorage.getItem("twj");
+      const res = await axios.post("/api/items", values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (res.status === 200) {
         form.reset();
         toast({

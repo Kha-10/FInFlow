@@ -133,7 +133,12 @@ export default function TransactionForm({
       return false;
     }
     try {
-      const res = await axios.post("/api/purchases", updatedValues);
+      const token = localStorage.getItem("twj");
+      const res = await axios.post("/api/purchases", updatedValues, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (res.status === 200) {
         form.reset();
         toast({

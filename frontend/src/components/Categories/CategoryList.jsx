@@ -84,9 +84,15 @@ export default function CategoryList({ categories, setCategories }) {
 
   async function onEdit(values) {
     try {
+      const token = localStorage.getItem("twj");
       const res = await axios.patch(
         `/api/categories/${editingCategory._id}`,
-        values
+        values,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (res.status === 200) {
         toast({
@@ -116,7 +122,15 @@ export default function CategoryList({ categories, setCategories }) {
 
   async function onDeleteItem() {
     try {
-      const res = await axios.delete(`/api/categories/${deletingCategory._id}`);
+      const token = localStorage.getItem("twj");
+      const res = await axios.delete(
+        `/api/categories/${deletingCategory._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (res.status === 200) {
         toast({
           title: "Category deleted",
@@ -300,7 +314,10 @@ export default function CategoryList({ categories, setCategories }) {
           <ScrollArea>
             <div className="space-y-2 py-4">
               {categories.map((category) => (
-                <Card key={category._id} className="overflow-hidden transition-all hover:shadow-md dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500">
+                <Card
+                  key={category._id}
+                  className="overflow-hidden transition-all hover:shadow-md dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500"
+                >
                   <CardContent className="p-0 bg-gray-50 dark:bg-gray-700 ">
                     <div className="flex items-center justify-between p-4">
                       <div>

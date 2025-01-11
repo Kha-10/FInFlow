@@ -53,8 +53,16 @@ function Home() {
   console.log(dateRange);
   const getPurhcases = async () => {
     try {
+      const token = localStorage.getItem("twj");
       const response = await axios.get(
-        `/api/purchases/chart?sortBy=${sortBy}${dateRange ? `&dateRange=${dateRange}` : ""}`
+        `/api/purchases/chart?sortBy=${sortBy}${
+          dateRange ? `&dateRange=${dateRange}` : ""
+        }`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (response.status === 200) {
         setTransactions(response.data.data.purchases);
@@ -71,7 +79,7 @@ function Home() {
 
   useEffect(() => {
     getPurhcases();
-  }, [filterRangeBy, dateRange,sortBy]);
+  }, [filterRangeBy, dateRange, sortBy]);
 
   const handlePresetChange = (preset) => {
     searchParams.set("filterRangeBy", preset);

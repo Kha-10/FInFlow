@@ -28,7 +28,12 @@ export default function CategoryForm({
 
   async function onSubmit(values) {
     try {
-      const res = await axios.post("/api/categories", values);
+      const token = localStorage.getItem("twj");
+      const res = await axios.post("/api/categories", values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (res.status === 200) {
         form.reset();
         toast({

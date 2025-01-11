@@ -84,7 +84,12 @@ export default function ItemList({ items, setItems }) {
 
   async function onEdit(values) {
     try {
-      const res = await axios.patch(`/api/items/${editingItem._id}`, values);
+      const token = localStorage.getItem("twj");
+      const res = await axios.patch(`/api/items/${editingItem._id}`, values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (res.status === 200) {
         toast({
           title: "Item updated",
@@ -113,7 +118,12 @@ export default function ItemList({ items, setItems }) {
 
   async function onDeleteItem() {
     try {
-      const res = await axios.delete(`/api/items/${deletingItem._id}`);
+      const token = localStorage.getItem("twj");
+      const res = await axios.delete(`/api/items/${deletingItem._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (res.status === 200) {
         toast({
           title: "Item deleted",
@@ -296,7 +306,10 @@ export default function ItemList({ items, setItems }) {
           <ScrollArea>
             <div className="space-y-2 py-4">
               {items.map((item) => (
-                <Card key={item._id} className="overflow-hidden transition-all hover:shadow-md dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500">
+                <Card
+                  key={item._id}
+                  className="overflow-hidden transition-all hover:shadow-md dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500"
+                >
                   <CardContent className="p-0 bg-gray-50 dark:bg-gray-700">
                     <div className="flex items-center justify-between p-4">
                       <div>
