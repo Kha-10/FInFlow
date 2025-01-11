@@ -44,6 +44,7 @@ function Home() {
     from: undefined,
     to: undefined,
   });
+  const [loading,setLoading] = useState(true)
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -74,6 +75,7 @@ function Home() {
       console.error("Error fetching items:", error);
     } finally {
       window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      setLoading(false)
     }
   };
 
@@ -166,6 +168,16 @@ function Home() {
     searchParams.delete("filterRangeBy");
     setSearchParams(searchParams);
   };
+
+  if (loading) {
+    // Render a loading spinner or fallback UI while fetching
+    return (
+      <div style={{ textAlign: "center", marginTop: "20%" }}>
+        <p>Loading...</p>
+        {/* You can replace this with a spinner component */}
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-100 dark:bg-gray-900 text-foreground antialiased">

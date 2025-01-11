@@ -52,7 +52,7 @@ const Header = () => {
   return (
     <header className="px-8 md:fixed sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container flex h-14 max-w-screen-2xl items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2">
+        <Link to="/dashboard" className="flex items-center space-x-2">
           <span className="font-bold">SaYate</span>
         </Link>
         <div className="flex items-center gap-4">
@@ -86,20 +86,20 @@ const Header = () => {
                 variant="outline"
                 className="relative h-10 w-10 text-white hover:text-white rounded-full bg-blue-400 hover:bg-blue-400/90"
               >
-                {/* <p>{user.username.charAt(0).toUpperCase()}</p> */}
-                <p>gg</p>
+                <p>{user.username.charAt(0).toUpperCase()}</p>
+                {/* <p>gg</p> */}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {/* {user.username} */}
-                    gg
+                    {user.username}
+                    {/* gg */}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {/* {user.email} */}
-                    gg
+                    {user.email}
+                    {/* gg */}
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -108,24 +108,16 @@ const Header = () => {
                 <DropdownMenuItem>
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
-                  <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
-                  <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
-                <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={()=> navigate('/register')}>
-                {/* <LogOut className="mr-2 h-4 w-4" /> */}
-                <span>Register</span>
-                <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

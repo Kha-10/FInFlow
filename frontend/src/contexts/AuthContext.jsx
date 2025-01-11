@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useEffect, useReducer, useState } from "react";
 import axios from "axios";
 
 const AuthContext = createContext();
@@ -22,7 +22,7 @@ const AuthContextProvider = ({ children }) => {
   let [state, dispatch] = useReducer(AuthReducer, {
     user: null,
   });
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     try {
       // axios.get('/api/users/me').then(res => {
@@ -53,10 +53,21 @@ const AuthContextProvider = ({ children }) => {
     } catch (e) {
       dispatch({ type: "LOGOUT" });
     }
+    setLoading(false);
   }, []);
 
+  // if (loading) {
+  //   // Render a loading spinner or fallback UI while fetching
+  //   return (
+  //     <div style={{ textAlign: "center", marginTop: "20%" }}>
+  //       <p>Loading...</p>
+  //       {/* You can replace this with a spinner component */}
+  //     </div>
+  //   );
+  // }
+
   return (
-    <AuthContext.Provider value={{ ...state, dispatch }}>
+    <AuthContext.Provider value={{ ...state, dispatch ,loading}}>
       {children}
     </AuthContext.Provider>
   );
