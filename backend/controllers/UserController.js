@@ -20,6 +20,7 @@ const UserController = {
         // secure: process.env.NODE_ENV === "production",
         sameSite: "None", // Required for cross-origin
         secure: true,
+        path: "/"
       });
 
       return res.json({ user, token });
@@ -42,6 +43,7 @@ const UserController = {
         // secure: process.env.NODE_ENV === "production",
         sameSite: "None", // Required for cross-origin
         secure: true,
+        path: "/"
       });
 
       return res.json({ user, token });
@@ -60,6 +62,7 @@ const UserController = {
       //   secure: process.env.NODE_ENV === "production",
       sameSite: "None", // Required for cross-origin
       secure: true,
+      path: "/"
     });
     return res.json({ message: "user logged out" });
   },

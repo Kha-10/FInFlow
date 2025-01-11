@@ -16,6 +16,7 @@ app.use(
   cors({
     origin: process.env.ORIGIN,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
 
@@ -35,6 +36,15 @@ app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.json({ msg: "hello" });
+});
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Origin",
+    process.env.ORIGIN
+  );
+  next();
 });
 
 app.use("/api/items", AuthMiddleware, itemsRoutes);
