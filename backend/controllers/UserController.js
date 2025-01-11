@@ -15,8 +15,10 @@ const UserController = {
       res.cookie("jwt", token, {
         httpOnly: true,
         maxAge: 3 * 24 * 60 * 60 * 1000,
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        secure: process.env.NODE_ENV === "production",
+        // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        // secure: process.env.NODE_ENV === "production",
+        sameSite: "None", // Required for cross-origin
+        secure: true,
       });
 
       return res.json({ user, token });
@@ -34,8 +36,10 @@ const UserController = {
       res.cookie("jwt", token, {
         httpOnly: true,
         maxAge: 3 * 24 * 60 * 60 * 1000,
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        secure: process.env.NODE_ENV === "production",
+        // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        // secure: process.env.NODE_ENV === "production",
+        sameSite: "None", // Required for cross-origin
+        secure: true,
       });
 
       return res.json({ user, token });
@@ -47,10 +51,12 @@ const UserController = {
   logout: (req, res) => {
     // res.cookie("jwt", "", { maxAge: 1 });
     res.cookie("jwt", "", {
-      maxAge: 1, 
-      httpOnly: true, 
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", 
-      secure: process.env.NODE_ENV === "production",
+      maxAge: 1,
+      httpOnly: true,
+      //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      //   secure: process.env.NODE_ENV === "production",
+      sameSite: "None", // Required for cross-origin
+      secure: true,
     });
     return res.json({ message: "user logged out" });
   },
