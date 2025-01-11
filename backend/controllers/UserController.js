@@ -45,7 +45,13 @@ const UserController = {
     }
   },
   logout: (req, res) => {
-    res.cookie("jwt", "", { maxAge: 1 });
+    // res.cookie("jwt", "", { maxAge: 1 });
+    res.cookie("jwt", "", {
+      maxAge: 1, 
+      httpOnly: true, 
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", 
+      secure: process.env.NODE_ENV === "production",
+    });
     return res.json({ message: "user logged out" });
   },
 };
