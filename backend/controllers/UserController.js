@@ -13,7 +13,6 @@ const UserController = {
 
       const token = createToken(user._id);
       res.cookie("jwt", token, {
-        domain: ".vercel.app",
         httpOnly: true,
         maxAge: 3 * 24 * 60 * 60 * 1000,
         // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -21,7 +20,6 @@ const UserController = {
         sameSite: "None", // Required for cross-origin
         secure: true,
         path: "/",
-        partitioned: true 
       });
 
       return res.json({ user, token });
@@ -37,7 +35,6 @@ const UserController = {
 
       const token = createToken(user._id);
       res.cookie("jwt", token, {
-        domain: ".vercel.app",
         httpOnly: true,
         maxAge: 3 * 24 * 60 * 60 * 1000,
         // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -45,7 +42,6 @@ const UserController = {
         sameSite: "None", // Required for cross-origin
         secure: true,
         path: "/",
-        partitioned: true 
       });
 
       return res.json({ user, token });
@@ -57,7 +53,6 @@ const UserController = {
   logout: (req, res) => {
     // res.cookie("jwt", "", { maxAge: 1 });
     res.cookie("jwt", "", {
-      domain: ".vercel.app",
       maxAge: 1,
       httpOnly: true,
       //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -65,7 +60,6 @@ const UserController = {
       sameSite: "None", // Required for cross-origin
       secure: true,
       path: "/",
-      partitioned: true 
     });
     return res.json({ message: "user logged out" });
   },
