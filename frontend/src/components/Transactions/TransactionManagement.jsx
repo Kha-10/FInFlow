@@ -45,6 +45,7 @@ import axios from "@/helper/axios";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from "react-router-dom";
+import TransactionSkeleton from "../Skeleton";
 
 export default function TransactionManagement() {
   const [filters, setFilters] = useState({
@@ -63,6 +64,7 @@ export default function TransactionManagement() {
     from: undefined,
     to: undefined,
   });
+  const [loading, setLoading] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get("page"))
@@ -78,6 +80,7 @@ export default function TransactionManagement() {
 
   const getPurhcases = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem("twj");
       const response = await axios.get(
         `/api/purchases?page=${page}${
@@ -92,7 +95,7 @@ export default function TransactionManagement() {
         }
       );
       if (response.status === 200) {
-        console.log(response);
+        console.log(response.data.data.purchases);
         setPurchases(response.data.data.purchases);
         setCategories(response.data.data.categories);
         setItems(response.data.data.items);
@@ -102,6 +105,7 @@ export default function TransactionManagement() {
       console.error("Error fetching items:", error);
     } finally {
       window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      setLoading(false);
     }
   };
 
@@ -220,122 +224,138 @@ export default function TransactionManagement() {
           setSearchParams={setSearchParams}
           clearDate={() => setDate({})}
         />
-
-        <ScrollArea>
-          <div className="space-y-4 py-4">
-            {!!purchases &&
-              purchases.map((purchase) => (
-                <Card
-                  key={purchase._id}
-                  className="p-4 bg-gray-50 dark:bg-gray-700 hover:shadow-md transition-all  dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-4">
-                      <div
-                        className={cn(
-                          "flex h-10 w-10 items-center justify-center rounded-full",
-                          purchase.transactionType === "income"
-                            ? "bg-green-500/20 text-green-500"
-                            : "bg-red-500/20 text-red-500"
-                        )}
-                      >
-                        {purchase.transactionType === "income" ? (
-                          <ArrowUpRight className="h-5 w-5" />
-                        ) : (
-                          <ArrowDownRight className="h-5 w-5" />
-                        )}
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {purchase.description}
-                        </p>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <span>
-                            {format(new Date(purchase.date), "MMM d, yyyy")}
-                          </span>
-                          <ChevronRight className="h-4 w-4 mx-1" />
-                          <Badge
-                            variant="secondary"
-                            className="rounded-md bg-gray-200 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
-                          >
-                            {purchase.category?.name}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-4">
-                      <div className="text-right">
-                        <p
-                          className={cn(
-                            "text-sm font-medium",
-                            purchase.transactionType === "income"
-                              ? "text-green-500"
-                              : "text-red-500"
-                          )}
-                        >
-                          {purchase.transactionType === "income" ? "+" : "-"}$
-                          {(purchase.amount || purchase.total) &&
-                            Number(purchase.amount || purchase.total).toFixed(
-                              2
+        {loading ? (
+          Array.from({ length: 6 }).map((_, index) => (
+            <TransactionSkeleton key={index} />
+          ))
+        ) : purchases && purchases.length === 0 ? (
+          <p className="text-muted-foreground text-sm text-center mt-8">
+            No purchases added yet? Tap the + icon below to get started!
+          </p>
+        ) : (
+          <ScrollArea className="h-[calc(100vh-12rem)]">
+            <div className="space-y-4 py-4">
+              {loading
+                ? Array.from({ length: 6 }).map((_, index) => (
+                    <TransactionSkeleton key={index} />
+                  ))
+                : !!purchases &&
+                  purchases.map((purchase) => (
+                    <Card
+                      key={purchase._id}
+                      className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-700 hover:shadow-md transition-all  dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-3 sm:space-x-4">
+                          <div
+                            className={cn(
+                              "flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full",
+                              purchase.transactionType === "income"
+                                ? "bg-green-500/20 text-green-500"
+                                : "bg-red-500/20 text-red-500"
                             )}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {purchase.items?.length >= 1
-                            ? `${purchase.items.length} `
-                            : 0}{" "}
-                          {purchase.items?.length === 1 ? "item" : "items"}
-                        </p>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
                           >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => setEditingTransaction(purchase)}
-                          >
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => setDeletingTransaction(purchase)}
-                            className="text-red-500 focus:text-red-500"
-                          >
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-
-                  {/* Items Section */}
-                  {!!purchase.items && (
-                    <div className="mt-4 space-y-2">
-                      {purchase.items?.map((item, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between text-sm px-4 py-2 rounded-lg bg-muted"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium">{item.name}</span>
-                            <span className="text-muted-foreground">
-                              ×{item.unitValue ? item.unitValue : 1}
-                            </span>
+                            {purchase.transactionType === "income" ? (
+                              <ArrowUpRight className="h-5 w-5" />
+                            ) : (
+                              <ArrowDownRight className="h-5 w-5" />
+                            )}
                           </div>
-                          <span>${item.price.toFixed(2)}</span>
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium leading-none">
+                              {purchase.description}
+                            </p>
+                            <div className="flex flex-wrap items-center text-xs sm:text-sm text-muted-foreground">
+                              <span>
+                                {format(new Date(purchase.date), "MMM d, yyyy")}
+                              </span>
+                              <ChevronRight className="h-4 w-4 mx-1" />
+                              <Badge
+                                variant="secondary"
+                                className="mt-1 md:mt-0 rounded-md text-xs bg-gray-200 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
+                              >
+                                {purchase.category?.name}
+                              </Badge>
+                            </div>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </Card>
-              ))}
-          </div>
-        </ScrollArea>
+                        <div className="flex items-start space-x-2 sm:space-x-4">
+                          <div className="text-right">
+                            <p
+                              className={cn(
+                                "text-sm font-medium",
+                                purchase.transactionType === "income"
+                                  ? "text-green-500"
+                                  : "text-red-500"
+                              )}
+                            >
+                              {purchase.transactionType === "income"
+                                ? "+"
+                                : "-"}
+                              $
+                              {(purchase.amount || purchase.total) &&
+                                Number(
+                                  purchase.amount || purchase.total
+                                ).toFixed(2)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {purchase.items?.length >= 1
+                                ? `${purchase.items.length} `
+                                : 0}{" "}
+                              {purchase.items?.length === 1 ? "item" : "items"}
+                            </p>
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => setEditingTransaction(purchase)}
+                              >
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => setDeletingTransaction(purchase)}
+                                className="text-red-500 focus:text-red-500"
+                              >
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+
+                      {/* Items Section */}
+                      {!!purchase.items && (
+                        <div className="mt-3 sm:mt-4 space-y-2">
+                          {purchase.items?.map((item, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center justify-between text-xs sm:text-sm px-3 py-1 sm:px-4 sm:py-2 rounded-lg bg-muted"
+                            >
+                              <div className="flex items-center space-x-2">
+                                <span className="font-medium">{item.name}</span>
+                                <span className="text-muted-foreground">
+                                  ×{item.unitValue ? item.unitValue : 1}
+                                </span>
+                              </div>
+                              <span>${item.price.toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </Card>
+                  ))}
+            </div>
+          </ScrollArea>
+        )}
       </div>
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetTrigger asChild>

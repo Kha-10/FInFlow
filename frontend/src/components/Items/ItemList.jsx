@@ -51,8 +51,9 @@ import axios from "@/helper/axios";
 import debounce from "lodash.debounce";
 import { useSearchParams } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function ItemList({ items, setItems }) {
+export default function ItemList({ items, setItems, loading }) {
   const [editingItem, setEditingItem] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [deletingItem, setDeletingItem] = useState(null);
@@ -303,95 +304,117 @@ export default function ItemList({ items, setItems }) {
               </DropdownMenu>
             </div>
           </div>
-          <ScrollArea>
-            <div className="space-y-2 py-4">
-              {items.map((item) => (
-                <Card
-                  key={item._id}
-                  className="overflow-hidden transition-all hover:shadow-md dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500"
+          {loading ? (
+            <div className="space-y-3 mt-3">
+              {Array.from({ length: 10 }).map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-700"
                 >
-                  <CardContent className="p-0 bg-gray-50 dark:bg-gray-700">
-                    <div className="flex items-center justify-between p-4">
-                      <div>
-                        <h3 className="font-semibold">{item.name}</h3>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Dialog
-                          open={editingItem && editingItem._id === item._id}
-                          onOpenChange={(isOpen) => {
-                            if (!isOpen) {
-                              handleCloseDialog();
-                            }
-                          }}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleOpenDialog(item)}
-                              className="text-purple-600 hover:text-purple-800 hover:bg-purple-100"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="w-[310px] sm:w-[400px] md:w-full rounded-lg sm:rounded-lg">
-                            <DialogHeader>
-                              <DialogTitle>Edit Item</DialogTitle>
-                              <DialogDescription className="hidden"></DialogDescription>
-                            </DialogHeader>
-                            <Form {...editForm}>
-                              <form
-                                onSubmit={editForm.handleSubmit(onEdit)}
-                                className="space-y-4"
-                              >
-                                <FormField
-                                  control={editForm.control}
-                                  name="name"
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Item Name</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          {...field}
-                                          autoComplete="off"
-                                          {...editForm.register("name", {
-                                            required: {
-                                              value: true,
-                                              message: "Item name is required",
-                                            },
-                                          })}
-                                          className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <Button
-                                  type="submit"
-                                  className=" bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md"
-                                >
-                                  Update Item
-                                </Button>
-                              </form>
-                            </Form>
-                          </DialogContent>
-                        </Dialog>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeletingItem(item)}
-                          className="text-pink-600 hover:text-pink-800 hover:bg-pink-100"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  <Skeleton className="h-6 w-32" />
+                  <div className="flex space-x-2">
+                    <Skeleton className="h-6 w-6" /> 
+                    <Skeleton className="h-6 w-6" />
+                  </div>
+                </div>
               ))}
             </div>
-          </ScrollArea>
+          ) : items && items.length === 0 ? (
+            <p className="text-muted-foreground text-sm text-center mt-8">
+              No items added yet? Tap the + icon below to get started!
+            </p>
+          ) : (
+            <ScrollArea>
+              <div className="space-y-2 py-4">
+                {items.map((item) => (
+                  <Card
+                    key={item._id}
+                    className="overflow-hidden transition-all hover:shadow-md dark:hover:shadow-gray-700/50 hover:border-gray-300 dark:hover:border-gray-500"
+                  >
+                    <CardContent className="p-0 bg-gray-50 dark:bg-gray-700">
+                      <div className="flex items-center justify-between p-4">
+                        <div>
+                          <h3 className="font-semibold">{item.name}</h3>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Dialog
+                            open={editingItem && editingItem._id === item._id}
+                            onOpenChange={(isOpen) => {
+                              if (!isOpen) {
+                                handleCloseDialog();
+                              }
+                            }}
+                          >
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleOpenDialog(item)}
+                                className="text-purple-600 hover:text-purple-800 hover:bg-purple-100"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="w-[310px] sm:w-[400px] md:w-full rounded-lg sm:rounded-lg">
+                              <DialogHeader>
+                                <DialogTitle>Edit Item</DialogTitle>
+                                <DialogDescription className="hidden"></DialogDescription>
+                              </DialogHeader>
+                              <Form {...editForm}>
+                                <form
+                                  onSubmit={editForm.handleSubmit(onEdit)}
+                                  className="space-y-4"
+                                >
+                                  <FormField
+                                    control={editForm.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Item Name</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            {...field}
+                                            autoComplete="off"
+                                            {...editForm.register("name", {
+                                              required: {
+                                                value: true,
+                                                message:
+                                                  "Item name is required",
+                                              },
+                                            })}
+                                            className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <Button
+                                    type="submit"
+                                    className=" bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md"
+                                  >
+                                    Update Item
+                                  </Button>
+                                </form>
+                              </Form>
+                            </DialogContent>
+                          </Dialog>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeletingItem(item)}
+                            className="text-pink-600 hover:text-pink-800 hover:bg-pink-100"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
         </CardContent>
       </Card>
       <AlertDialog

@@ -51,7 +51,7 @@ function Home() {
   const filterRangeBy = searchParams.get("filterRangeBy");
   const dateRange = searchParams.get("dateRange");
   const sortBy = searchParams.get("sortBy") || "outcome";
-  console.log(dateRange);
+
   const getPurhcases = async () => {
     try {
       const token = localStorage.getItem("twj");
@@ -168,16 +168,6 @@ function Home() {
     searchParams.delete("filterRangeBy");
     setSearchParams(searchParams);
   };
-
-  if (loading) {
-    // Render a loading spinner or fallback UI while fetching
-    return (
-      <div style={{ textAlign: "center", marginTop: "20%" }}>
-        <p>Loading...</p>
-        {/* You can replace this with a spinner component */}
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-100 dark:bg-gray-900 text-foreground antialiased">

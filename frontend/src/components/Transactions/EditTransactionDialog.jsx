@@ -91,6 +91,9 @@ export default function EditTransactionDialog({
       const updatedTransaction = {
         ...transaction,
         category: transaction.category?._id || "",
+        date: transaction.date
+          ? new Date(transaction.date).toISOString().split("T")[0] // Convert to YYYY-MM-DD
+          : new Date().toISOString().split("T")[0],
         amount: parseFloat(transaction.amount) || 0,
       };
       form.reset(updatedTransaction);
@@ -143,7 +146,6 @@ export default function EditTransactionDialog({
         status: "error",
       });
     }
-    console.log(updatedValues);
   }
 
   return (
@@ -256,6 +258,10 @@ export default function EditTransactionDialog({
                                     !field.value && "text-muted-foreground"
                                   )}
                                 >
+                                  {console.log(
+                                    "showing Date",
+                                    format(new Date(field.value), "PPP")
+                                  )}
                                   {field.value ? (
                                     format(new Date(field.value), "PPP")
                                   ) : (
@@ -276,11 +282,26 @@ export default function EditTransactionDialog({
                                     ? new Date(field.value)
                                     : undefined
                                 }
-                                onSelect={(date) =>
-                                  field.onChange(
-                                    date ? date.toISOString().split("T")[0] : ""
-                                  )
-                                }
+                                // onSelect={(date) => {
+                                //   console.log("date", date);
+                                //   field.onChange(
+                                //     date ? date.toISOString().split("T")[0] : ""
+                                //   );
+                                // }}
+                                onSelect={(selectedDate) => {
+                                  if (!selectedDate) return;
+                                  const year = selectedDate.getFullYear();
+                                  const month = selectedDate.getMonth();
+                                  const day = selectedDate.getDate();
+                                  const formattedDate = `${year}-${String(
+                                    month + 1
+                                  ).padStart(2, "0")}-${String(day).padStart(
+                                    2,
+                                    "0"
+                                  )}`;
+                                  console.log("formattedDate", formattedDate);
+                                  field.onChange(formattedDate);
+                                }}
                                 // disabled={(date) =>
                                 //   date > new Date() ||
                                 //   date < new Date("1900-01-01")

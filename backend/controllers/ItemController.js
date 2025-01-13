@@ -23,7 +23,7 @@ const ItemController = {
       .limit(limit)
       .sort(sortObject);
 
-    let totalItemCount = await Item.countDocuments();
+    let totalItemCount = await Item.countDocuments({userId});
 
     let totalPagesCount = Math.ceil(totalItemCount / limit);
 

@@ -126,7 +126,7 @@ const PurchaseController = {
           number: i + 1,
         })),
       };
-
+      console.log("links",links);
       // Fetch categories
       const categories = await Category.find({userId});
 

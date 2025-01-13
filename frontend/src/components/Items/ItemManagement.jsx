@@ -19,6 +19,7 @@ export default function ItemManagement() {
   const [items, setItems] = useState([]);
   const [isItemSheetOpen, setIsItemSheetOpen] = useState(false);
   const [pagination, setPagination] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const location = useLocation();
   const searchQuery = new URLSearchParams(location.search);
@@ -33,6 +34,7 @@ export default function ItemManagement() {
 
   const getItems = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem("twj");
       const response = await axios.get(
         `/api/items?page=${page}&sort=${sort}&sortDirection=${sortDirection}${
@@ -53,6 +55,7 @@ export default function ItemManagement() {
       console.error("Error fetching items:", error);
     } finally {
       window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      setLoading(false);
     }
   };
 
@@ -60,9 +63,10 @@ export default function ItemManagement() {
     getItems();
   }, [page, query, sort, sortDirection]);
 
+
   return (
     <>
-      <ItemList items={items} setItems={setItems} />
+      <ItemList items={items} setItems={setItems} loading={loading} />
       <Sheet open={isItemSheetOpen} onOpenChange={setIsItemSheetOpen}>
         <SheetTrigger asChild>
           <Button
@@ -74,7 +78,7 @@ export default function ItemManagement() {
         </SheetTrigger>
         <SheetContent
           side="bottom"
-          className="h-[400px] rounded-t-[20px] sm:rounded-t-[30px]"
+          className="h-[500px] md:h-[400px] rounded-t-[20px] sm:rounded-t-[30px]"
         >
           <div className="h-full flex flex-col">
             <SheetHeader className="relative border-b border-border pb-4">

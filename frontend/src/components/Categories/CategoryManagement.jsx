@@ -19,6 +19,7 @@ export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [pagination, setPagination] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const location = useLocation();
   const searchQuery = new URLSearchParams(location.search);
@@ -33,6 +34,7 @@ export default function CategoryManagement() {
 
   const getCategories = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem("twj");
       const response = await axios.get(
         `/api/categories?page=${page}&sort=${sort}&sortDirection=${sortDirection}${
@@ -53,6 +55,7 @@ export default function CategoryManagement() {
       console.error("Error fetching items:", error);
     } finally {
       window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      setLoading(false);
     }
   };
 
@@ -62,7 +65,11 @@ export default function CategoryManagement() {
 
   return (
     <>
-      <CategoryList categories={categories} setCategories={setCategories} />
+      <CategoryList
+        categories={categories}
+        setCategories={setCategories}
+        loading={loading}
+      />
       <Sheet open={isCategorySheetOpen} onOpenChange={setIsCategorySheetOpen}>
         <SheetTrigger asChild>
           <Button
@@ -74,7 +81,7 @@ export default function CategoryManagement() {
         </SheetTrigger>
         <SheetContent
           side="bottom"
-          className="h-[400px] rounded-t-[20px] sm:rounded-t-[30px]"
+          className="h-[500px] md:h-[400px] rounded-t-[20px] sm:rounded-t-[30px]"
         >
           <div className="h-full flex flex-col">
             <SheetHeader className="relative border-b border-border pb-4">

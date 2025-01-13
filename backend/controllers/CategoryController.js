@@ -23,7 +23,7 @@ const CategoryController = {
       .limit(limit)
       .sort(sortObject);
 
-    let totalCategoryCount = await Category.countDocuments();
+    let totalCategoryCount = await Category.countDocuments({userId});
 
     let totalPagesCount = Math.ceil(totalCategoryCount / limit);
 

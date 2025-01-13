@@ -22,39 +22,57 @@ const AuthContextProvider = ({ children }) => {
   let [state, dispatch] = useReducer(AuthReducer, {
     user: null,
   });
+  // const [loading, setLoading] = useState(true);
+  // useEffect(() => {
+  //   try {
+  //     // axios.get('/api/users/me').then(res => {
+  //     //     let user = res.data;
+  //     //     if (user) {
+  //     //         dispatch({ type: 'LOGIN', payload: user })
+  //     //     } else {
+  //     //         dispatch({ type: "LOGOUT" });
+  //     //     }
+  //     // })
+  //   } catch (e) {
+  //     dispatch({ type: "LOGOUT" });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    try {
-      // axios.get('/api/users/me').then(res => {
-      //     let user = res.data;
-      //     if (user) {
-      //         dispatch({ type: 'LOGIN', payload: user })
-      //     } else {
-      //         dispatch({ type: "LOGOUT" });
-      //     }
-      // })
-      const token = localStorage.getItem("twj");
-      if (token) {
-        axios
-          .get("/api/users/me", {
-            headers: {
-              Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-            },
-          })
-          .then((res) => {
-            let user = res.data;
-            if (user) {
-              dispatch({ type: "LOGIN", payload: user });
-            } else {
-              dispatch({ type: "LOGOUT" });
-            }
-          });
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem("twj");
+
+        if (!token) {
+          dispatch({ type: "LOGOUT" });
+          setLoading(false);
+          return;
+        }
+
+        const response = await axios.get("/api/users/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const user = response.data;
+        if (user) {
+          dispatch({ type: "LOGIN", payload: user });
+        } else {
+          dispatch({ type: "LOGOUT" });
+        }
+      } catch (error) {
+        dispatch({ type: "LOGOUT" });
+      } finally {
+        setLoading(false);
       }
-    } catch (e) {
-      dispatch({ type: "LOGOUT" });
-    }
-    setLoading(false);
-  }, []);
+    };
+
+    checkAuth();
+  }, [dispatch]);
 
   // if (loading) {
   //   // Render a loading spinner or fallback UI while fetching
@@ -67,7 +85,7 @@ const AuthContextProvider = ({ children }) => {
   // }
 
   return (
-    <AuthContext.Provider value={{ ...state, dispatch ,loading}}>
+    <AuthContext.Provider value={{ ...state, dispatch, loading }}>
       {children}
     </AuthContext.Provider>
   );

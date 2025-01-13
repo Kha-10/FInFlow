@@ -11,9 +11,29 @@ import Register from "@/pages/Register";
 import React from "react";
 import { useContext } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
+import InitialLoading from "@/components/InitialLoading";
+
+const ProtectedRoute = ({ loading, user, children }) => {
+  // While loading, show loading indicator
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  // After loading, check authentication
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  // If authenticated, render the protected content
+  return children;
+};
 
 function index() {
-  let { user } = useContext(AuthContext);
+  let { user, loading } = useContext(AuthContext);
 
   const router = createBrowserRouter([
     {
@@ -22,23 +42,51 @@ function index() {
       children: [
         {
           path: "/dashboard",
-          element: user ? <Home />  : <Navigate to={"/login"} />,
-            // element:  <Home /> ,
+          //   element: user ? <Home />  : <Navigate to={"/login"} />,
+          element: loading ? (
+            <InitialLoading />
+          ) : user ? (
+            <Home />
+          ) : (
+            <Navigate to={"/login"} />
+          ),
+          // element:  <Home /> ,
         },
         {
           path: "/purchases",
-          element: user ? <AddToPurchases /> : <Navigate to={"/login"} />,
-            // element:  <AddToPurchases /> ,
+          //   element: user ? <AddToPurchases /> : <Navigate to={"/login"} />,
+          // element:  <AddToPurchases /> ,
+          element: loading ? (
+            <InitialLoading />
+          ) : user ? (
+            <AddToPurchases />
+          ) : (
+            <Navigate to={"/login"} />
+          ),
         },
         {
           path: "/login",
-            element: !user ? <LogIn /> : <Navigate to={"/dashboard"} />,
-        //   element: <LogIn />,
+          //   element: !user ? <LogIn /> : <Navigate to={"/dashboard"} />,
+          //   element: <LogIn />,
+          element: loading ? (
+            <InitialLoading />
+          ) : !user ? (
+            <LogIn />
+          ) : (
+            <Navigate to={"/dashboard"} />
+          ),
         },
         {
           path: "/register",
-            element: !user ? <Register /> : <Navigate to={"/dashboard"} />,
-        //   element: <Register />,
+          //   element: !user ? <Register /> : <Navigate to={"/dashboard"} />,
+          //   element: <Register />,
+          element: loading ? (
+            <InitialLoading />
+          ) : !user ? (
+            <Register />
+          ) : (
+            <Navigate to={"/dashboard"} />
+          ),
         },
       ],
     },
