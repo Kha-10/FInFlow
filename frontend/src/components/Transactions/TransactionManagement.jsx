@@ -105,7 +105,7 @@ export default function TransactionManagement() {
       console.error("Error fetching items:", error);
     } finally {
       window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-      setLoading(true);
+      setLoading(false);
     }
   };
 
