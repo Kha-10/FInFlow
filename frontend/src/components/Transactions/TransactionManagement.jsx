@@ -105,7 +105,7 @@ export default function TransactionManagement() {
       console.error("Error fetching items:", error);
     } finally {
       window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-      setLoading(false);
+      setLoading(true);
     }
   };
 
@@ -225,9 +225,11 @@ export default function TransactionManagement() {
           clearDate={() => setDate({})}
         />
         {loading ? (
-          Array.from({ length: 6 }).map((_, index) => (
-            <TransactionSkeleton key={index} />
-          ))
+          <div className="space-y-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <TransactionSkeleton key={index} />
+            ))}
+          </div>
         ) : purchases && purchases.length === 0 ? (
           <p className="text-muted-foreground text-sm text-center mt-8">
             No purchases added yet? Tap the + icon below to get started!
