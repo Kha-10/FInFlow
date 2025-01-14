@@ -44,7 +44,6 @@ export default function TransactionForm({
   itemlist,
 }) {
   const [activeTab, setActiveTab] = useState("Quick Add");
-  const [isFocused, setIsFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const wrapperRef = useRef(null);

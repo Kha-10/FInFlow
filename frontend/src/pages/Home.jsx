@@ -44,7 +44,6 @@ function Home() {
     from: undefined,
     to: undefined,
   });
-  const [loading,setLoading] = useState(true)
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -75,7 +74,6 @@ function Home() {
       console.error("Error fetching items:", error);
     } finally {
       window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-      setLoading(false)
     }
   };
 
@@ -98,20 +96,14 @@ function Home() {
         to = endOfMonth(now);
         break;
       case "last-month":
-        // from = startOfWeek(now);
-        // to = endOfWeek(now);
         from = startOfMonth(subMonths(now, 1)); // Start of last month
         to = endOfMonth(subMonths(now, 1));
         break;
       case "last-3-months":
-        // from = startOfMonth(now);
-        // to = endOfMonth(now);
         from = startOfMonth(subMonths(now, 3)); // Start of the 3 months ago
         to = endOfMonth(subMonths(now, 1));
         break;
       case "last-6-months":
-        // from = subMonths(now, 6);
-        // to = now;
         from = startOfMonth(subMonths(now, 6)); // Start of the 6 months ago
         to = endOfMonth(subMonths(now, 1));
         break;
@@ -120,8 +112,6 @@ function Home() {
         to = endOfYear(now);
         break;
       case "last-year":
-        // from = subYears(now, 1);
-        // to = now;
         from = startOfYear(subYears(now, 1)); // Start of the previous year
         to = endOfYear(subYears(now, 1));
         break;
@@ -139,8 +129,6 @@ function Home() {
     const formattedTo = utcTo.toISOString();
 
     const dateRange = `${formattedFrom},${formattedTo}`;
-
-    console.log("dateRange", dateRange);
 
     setDate({ from, to });
     searchParams.set("dateRange", dateRange);

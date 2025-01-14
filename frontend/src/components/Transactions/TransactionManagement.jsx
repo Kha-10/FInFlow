@@ -394,12 +394,9 @@ export default function TransactionManagement() {
       <EditTransactionDialog
         transaction={editingTransaction}
         categories={categories}
-        onUpdate={(updatedTransaction) => {
-          onUpdate(updatedTransaction.id, updatedTransaction);
-          setEditingTransaction(null);
-        }}
         onClose={() => setEditingTransaction(null)}
         setPurchases={setPurchases}
+        itemlist={items}
       />
       <AlertDialog
         open={!!deletingTransaction}

@@ -357,6 +357,7 @@ const PurchaseController = {
       items,
       total,
     } = req.body;
+    console.log('body',req.body);
     try {
       const userId = req.user._id;
       const purchase = await Purchase.create({

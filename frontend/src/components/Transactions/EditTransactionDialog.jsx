@@ -25,6 +25,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Trash2, Plus } from "lucide-react";
+import { ScrollArea } from "../ui/scroll-area";
 import { format } from "date-fns";
 import { useForm, useFieldArray } from "react-hook-form";
 import {
@@ -36,7 +37,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DevTool } from "@hookform/devtools";
 import { useToast } from "@/hooks/use-toast";
 import axios from "@/helper/axios";
@@ -46,7 +47,25 @@ export default function EditTransactionDialog({
   categories,
   onClose,
   setPurchases,
+  itemlist
 }) {
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const wrapperRef = useRef(null);
+
+  const handleClickOutside = (e) => {
+    if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+      setShowSuggestions(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const form = useForm({
     defaultValues: {
       transactionType: "outcome",
@@ -85,6 +104,12 @@ export default function EditTransactionDialog({
     (sum, item) => sum + parseFloat(item.price || 0),
     0
   );
+
+  useEffect(() => {
+    if (total > 0) {
+      form.setValue("total", total.toFixed(2));
+    }
+  }, [total]);
 
   useEffect(() => {
     if (transaction) {
@@ -282,12 +307,6 @@ export default function EditTransactionDialog({
                                     ? new Date(field.value)
                                     : undefined
                                 }
-                                // onSelect={(date) => {
-                                //   console.log("date", date);
-                                //   field.onChange(
-                                //     date ? date.toISOString().split("T")[0] : ""
-                                //   );
-                                // }}
                                 onSelect={(selectedDate) => {
                                   if (!selectedDate) return;
                                   const year = selectedDate.getFullYear();
@@ -299,7 +318,6 @@ export default function EditTransactionDialog({
                                     2,
                                     "0"
                                   )}`;
-                                  console.log("formattedDate", formattedDate);
                                   field.onChange(formattedDate);
                                 }}
                                 // disabled={(date) =>
@@ -336,70 +354,6 @@ export default function EditTransactionDialog({
                       />
                     )}
                   </div>
-                  {/* {fields.map((field, index) => (
-                    <div key={field.id} className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name={`items.${index}.name`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Item Name</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name={`items.${index}.quantity`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Quantity</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`items.${index}.price`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Price</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  {...field}
-                                  className="w-full bg-primary-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => remove(index)}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))} */}
                   {form.formState.defaultValues.purchaseType ===
                     "Full Form" && (
                     <div className="space-y-2">
@@ -442,7 +396,10 @@ export default function EditTransactionDialog({
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </div>
-                                <div className="w-full flex justify-start space-x-4">
+                                <div
+                                  ref={wrapperRef}
+                                  className="relative w-full flex justify-start space-x-4"
+                                >
                                   <FormField
                                     control={form.control}
                                     name={`items.${index}.name`}
@@ -454,6 +411,10 @@ export default function EditTransactionDialog({
                                             className="w-full bg-primary-foreground focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
                                             placeholder="Name"
                                             autoComplete="off"
+                                            onFocus={() => {
+                                              setActiveIndex(index);
+                                              setShowSuggestions(true);
+                                            }}
                                             {...field}
                                             {...form.register(
                                               `items.${index}.name`,
@@ -470,6 +431,43 @@ export default function EditTransactionDialog({
                                       </FormItem>
                                     )}
                                   />
+                                  {showSuggestions &&
+                                    activeIndex === index &&
+                                    itemlist?.length > 0 &&
+                                    activeIndex !== null && (
+                                      <div className="absolute z-50 top-20 -left-5 w-full bg-background border rounded-md shadow-lg">
+                                        <ScrollArea className="max-h-60">
+                                          {itemlist.map((item) => (
+                                            <Button
+                                              key={item._id}
+                                              onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                const currentItems =
+                                                  form.getValues("items");
+                                                currentItems[index] = {
+                                                  ...currentItems[index],
+                                                  name: item.name,
+                                                };
+                                                form.setValue(
+                                                  "items",
+                                                  currentItems
+                                                );
+                                                setShowSuggestions(false);
+                                              }}
+                                              variant="ghost"
+                                              type="button"
+                                              className="w-full justify-start rounded-none h-auto py-3 px-4 space-y-1"
+                                            >
+                                              <div className="flex flex-col items-start">
+                                                <span className="text-sm font-medium">
+                                                  {item.name}
+                                                </span>
+                                              </div>
+                                            </Button>
+                                          ))}
+                                        </ScrollArea>
+                                      </div>
+                                    )}
                                   <FormField
                                     control={form.control}
                                     name={`items.${index}.price`}
