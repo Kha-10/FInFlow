@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Summary from "@/components/Summary";
 import { useToast } from "@/hooks/use-toast";
-import { Toaster } from "@/components/ui/toaster";
+// import { Toaster } from "@/components/ui/toaster";
 import ChartArea from "@/components/ChartArea";
 import ChartPie from "@/components/ChartPie";
 import axios from "@/helper/axios";
@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { useSearchParams } from "react-router-dom";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
 
 function Home() {
   const [transactions, setTransactions] = useState([]);
@@ -44,6 +45,7 @@ function Home() {
     from: undefined,
     to: undefined,
   });
+  const [isLoading, setIsloading] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -53,6 +55,7 @@ function Home() {
 
   const getPurhcases = async () => {
     try {
+      setIsloading(true);
       const token = localStorage.getItem("twj");
       const response = await axios.get(
         `/api/purchases/chart?sortBy=${sortBy}${
@@ -74,6 +77,7 @@ function Home() {
       console.error("Error fetching items:", error);
     } finally {
       window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      setIsloading(false);
     }
   };
 
@@ -159,89 +163,93 @@ function Home() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-100 dark:bg-gray-900 text-foreground antialiased">
-      <main className="flex-1 relative">
-        <div className="flex items-center justify-end gap-2 mt-3 px-5">
-          <Select
-            onValueChange={handlePresetChange}
-            value={filterRangeBy || ""}
-          >
-            <SelectTrigger
-              className="w-[180px] bg-white dark:bg-gray-800
-                  hover:bg-primary-foreground text-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+      {isLoading ? (
+        <DashboardSkeleton />
+      ) : (
+        <main className="flex-1 relative">
+          <div className="flex items-center justify-end gap-2 mt-3 px-5">
+            <Select
+              onValueChange={handlePresetChange}
+              value={filterRangeBy || ""}
             >
-              <SelectValue placeholder="Select range" />
-            </SelectTrigger>
-            <SelectContent className="mt-2">
-              <SelectItem value="this-month">This Month</SelectItem>
-              <SelectItem value="last-month">Last Month</SelectItem>
-              <SelectItem value="last-3-months">Last 3 Months</SelectItem>
-              <SelectItem value="last-6-months">Last 6 Months</SelectItem>
-              <SelectItem value="this-year">This Year</SelectItem>
-              <SelectItem value="last-year">Last Year</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "w-[280px] justify-start text-left bg-white dark:bg-gray-800 hover:bg-primary-foreground font-normal focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0",
-                  !date?.from && "text-muted-foreground"
-                )}
+              <SelectTrigger
+                className="w-[180px] bg-white dark:bg-gray-800
+                  hover:bg-primary-foreground text-foreground focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {date?.from ? (
-                  date.to ? (
-                    <>
-                      {format(date.from, "LLL dd, y")} -{" "}
-                      {format(date.to, "LLL dd, y")}
-                    </>
+                <SelectValue placeholder="Select range" />
+              </SelectTrigger>
+              <SelectContent className="mt-2">
+                <SelectItem value="this-month">This Month</SelectItem>
+                <SelectItem value="last-month">Last Month</SelectItem>
+                <SelectItem value="last-3-months">Last 3 Months</SelectItem>
+                <SelectItem value="last-6-months">Last 6 Months</SelectItem>
+                <SelectItem value="this-year">This Year</SelectItem>
+                <SelectItem value="last-year">Last Year</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[280px] justify-start text-left bg-white dark:bg-gray-800 hover:bg-primary-foreground font-normal focus:ring-blue-500 focus:ring-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0",
+                    !date?.from && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date?.from ? (
+                    date.to ? (
+                      <>
+                        {format(date.from, "LLL dd, y")} -{" "}
+                        {format(date.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      <> {format(date.from, "LLL dd, y")} - Select end date</>
+                    )
                   ) : (
-                    <> {format(date.from, "LLL dd, y")} - Select end date</>
-                  )
-                ) : (
-                  <span>Pick a date range</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 mt-2 mr-4" align="start">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={date?.from}
-                selected={date}
-                onSelect={(newDate) => {
-                  setDate(newDate || { from: undefined, to: undefined });
-                  if (newDate?.from && newDate.to) {
-                    handleDateRangeChange(newDate);
-                    setIsCalendarOpen(false);
-                  }
-                }}
-                numberOfMonths={2}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div className="container mx-auto space-y-6 p-4 pb-20">
-          <Summary
-            transactions={transactions}
-            dayChartDatas={dayChartDatas}
-            chartDatas={chartDatas}
-          />
-          <div className="w-full gap-5 flex flex-col xl:flex-row items-center">
-            <ChartArea
-              className="flex-1"
-              chartDatas={chartDatas}
-              filterRangeBy={filterRangeBy}
-              dayChartDatas={dayChartDatas}
-              dateRange={dateRange}
-            />
+                    <span>Pick a date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 mt-2 mr-4" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={date?.from}
+                  selected={date}
+                  onSelect={(newDate) => {
+                    setDate(newDate || { from: undefined, to: undefined });
+                    if (newDate?.from && newDate.to) {
+                      handleDateRangeChange(newDate);
+                      setIsCalendarOpen(false);
+                    }
+                  }}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
-          <ChartPie className="flex-1" chartPie={chartPie} />
-        </div>
-      </main>
-      <Toaster />
+          <div className="container mx-auto space-y-6 p-4 pb-20">
+            <Summary
+              transactions={transactions}
+              dayChartDatas={dayChartDatas}
+              chartDatas={chartDatas}
+            />
+            <div className="w-full gap-5 flex flex-col xl:flex-row items-center">
+              <ChartArea
+                className="flex-1"
+                chartDatas={chartDatas}
+                filterRangeBy={filterRangeBy}
+                dayChartDatas={dayChartDatas}
+                dateRange={dateRange}
+              />
+            </div>
+            <ChartPie className="flex-1" chartPie={chartPie} />
+          </div>
+        </main>
+      )}
+      {/* <Toaster /> */}
     </div>
   );
 }

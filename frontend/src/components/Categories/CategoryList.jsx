@@ -85,6 +85,10 @@ export default function CategoryList({ categories, setCategories, loading }) {
 
   async function onEdit(values) {
     try {
+      toast({
+        title: "Updating Category",
+        description: "Please wait a moment...",
+      });
       const token = localStorage.getItem("twj");
       const res = await axios.patch(
         `/api/categories/${editingCategory._id}`,
@@ -100,6 +104,7 @@ export default function CategoryList({ categories, setCategories, loading }) {
           title: "Category updated",
           description: "The category has been updated successfully.",
           duration: 3000,
+          variant: "success",
         });
         setCategories((prevItems) =>
           prevItems.map((item) =>
@@ -116,13 +121,17 @@ export default function CategoryList({ categories, setCategories, loading }) {
         description: error.response.data
           ? error.response.data.msg
           : "There was an issue updating the category. Please try again.",
-        status: "error",
+        variant: "error",
       });
     }
   }
 
   async function onDeleteItem() {
     try {
+      toast({
+        title: "Deleting Category",
+        description: "Please wait a moment...",
+      });
       const token = localStorage.getItem("twj");
       const res = await axios.delete(
         `/api/categories/${deletingCategory._id}`,
@@ -137,6 +146,7 @@ export default function CategoryList({ categories, setCategories, loading }) {
           title: "Category deleted",
           description: "The category has been deleted successfully.",
           duration: 3000,
+          variant: "success",
         });
         setCategories((prevItems) =>
           prevItems.filter((item) => item._id !== deletingCategory._id)
@@ -150,7 +160,7 @@ export default function CategoryList({ categories, setCategories, loading }) {
         description: error.response.data
           ? error.response.data.msg
           : "There was an issue deleting the category. Please try again.",
-        status: "error",
+        variant: "error",
       });
     }
   }

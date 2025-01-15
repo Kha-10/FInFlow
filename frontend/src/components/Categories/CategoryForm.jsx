@@ -28,6 +28,10 @@ export default function CategoryForm({
 
   async function onSubmit(values) {
     try {
+      toast({
+        title: "Adding Category",
+        description: "Please wait a moment...",
+      });
       const token = localStorage.getItem("twj");
       const res = await axios.post("/api/categories", values, {
         headers: {
@@ -40,6 +44,7 @@ export default function CategoryForm({
           title: "Category added",
           description: `${values.name} has been added to your categories list.`,
           duration: 3000,
+          variant: "success",
         });
         setCategories((prev) => [res.data, ...prev]);
         setIsCategorySheetOpen(false);
@@ -52,7 +57,7 @@ export default function CategoryForm({
           ? error.response.data.msg
           : "There was an issue adding the category. Please try again.",
         duration: 3000,
-        status: "error",
+        variant: "error",
       });
     }
   }

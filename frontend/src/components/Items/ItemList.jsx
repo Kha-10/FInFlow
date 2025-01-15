@@ -85,6 +85,10 @@ export default function ItemList({ items, setItems, loading }) {
 
   async function onEdit(values) {
     try {
+      toast({
+        title: "Updating Item",
+        description: "Please wait a moment...",
+      });
       const token = localStorage.getItem("twj");
       const res = await axios.patch(`/api/items/${editingItem._id}`, values, {
         headers: {
@@ -96,6 +100,7 @@ export default function ItemList({ items, setItems, loading }) {
           title: "Item updated",
           description: "The item has been updated successfully.",
           duration: 3000,
+          variant: "success",
         });
         setItems((prevItems) =>
           prevItems.map((item) =>
@@ -112,13 +117,17 @@ export default function ItemList({ items, setItems, loading }) {
         description: error.response.data
           ? error.response.data.msg
           : "There was an issue updating the item. Please try again.",
-        status: "error",
+        variant: "error",
       });
     }
   }
 
   async function onDeleteItem() {
     try {
+      toast({
+        title: "Deleting Item",
+        description: "Please wait a moment...",
+      });
       const token = localStorage.getItem("twj");
       const res = await axios.delete(`/api/items/${deletingItem._id}`, {
         headers: {
@@ -130,6 +139,7 @@ export default function ItemList({ items, setItems, loading }) {
           title: "Item deleted",
           description: "The item has been deleted successfully.",
           duration: 3000,
+          variant: "success",
         });
         setItems((prevItems) =>
           prevItems.filter((item) => item._id !== deletingItem._id)
@@ -142,7 +152,7 @@ export default function ItemList({ items, setItems, loading }) {
         description: error.response.data
           ? error.response.data.msg
           : "There was an issue deleting the item. Please try again.",
-        status: "error",
+        variant: "error",
       });
     }
   }
@@ -313,7 +323,7 @@ export default function ItemList({ items, setItems, loading }) {
                 >
                   <Skeleton className="h-6 w-32" />
                   <div className="flex space-x-2">
-                    <Skeleton className="h-6 w-6" /> 
+                    <Skeleton className="h-6 w-6" />
                     <Skeleton className="h-6 w-6" />
                   </div>
                 </div>

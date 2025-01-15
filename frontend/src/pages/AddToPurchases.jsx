@@ -3,7 +3,7 @@ import ItemManagement from "@/components/Items/ItemManagement";
 import CategoryManagement from "@/components/Categories/CategoryManagement";
 import TransactionManagement from "@/components/Transactions/TransactionManagement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Toaster } from "@/components/ui/toaster";
+// import { Toaster } from "@/components/ui/toaster";
 import { useNavigate } from "react-router-dom";
 
 const AddToPurchases = () => {
@@ -80,7 +80,7 @@ const AddToPurchases = () => {
           </Tabs>
         </div>
       </main>
-      <Toaster />
+      {/* <Toaster /> */}
     </div>
   );
 };

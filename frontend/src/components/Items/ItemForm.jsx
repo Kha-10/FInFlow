@@ -25,6 +25,10 @@ const ItemForm = ({ setItems, setIsItemSheetOpen }) => {
 
   async function onSubmit(values) {
     try {
+      toast({
+        title: "Adding Item",
+        description: "Please wait a moment...",
+      });
       const token = localStorage.getItem("twj");
       const res = await axios.post("/api/items", values, {
         headers: {
@@ -37,6 +41,7 @@ const ItemForm = ({ setItems, setIsItemSheetOpen }) => {
           title: "Item added",
           description: `${values.name} has been added to your items list.`,
           duration: 3000,
+          variant: "success",
         });
         setItems((prev) => [res.data, ...prev]);
         setIsItemSheetOpen(false);
@@ -49,7 +54,7 @@ const ItemForm = ({ setItems, setIsItemSheetOpen }) => {
           ? error.response.data.msg
           : "There was an issue adding the item. Please try again.",
         duration: 3000,
-        status: "error",
+        variant: "error",
       });
     }
   }

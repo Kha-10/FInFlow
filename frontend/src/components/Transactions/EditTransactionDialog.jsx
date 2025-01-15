@@ -47,7 +47,7 @@ export default function EditTransactionDialog({
   categories,
   onClose,
   setPurchases,
-  itemlist
+  itemlist,
 }) {
   const [activeIndex, setActiveIndex] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -137,6 +137,10 @@ export default function EditTransactionDialog({
     }
 
     try {
+      toast({
+        title: "Updating transaction",
+        description: "Please wait a moment...",
+      });
       const token = localStorage.getItem("twj");
       const res = await axios.patch(
         `/api/purchases/${updatedValues._id}`,
@@ -152,6 +156,7 @@ export default function EditTransactionDialog({
           title: "Transaction updated",
           description: "The transaction has been updated successfully.",
           duration: 3000,
+          variant: "success",
         });
         setPurchases((prevItems) =>
           prevItems.map((item) =>
@@ -168,7 +173,7 @@ export default function EditTransactionDialog({
         description: error.response.data
           ? error.response.data.msg
           : "There was an issue updating the transaction. Please try again.",
-        status: "error",
+        variant: "error",
       });
     }
   }

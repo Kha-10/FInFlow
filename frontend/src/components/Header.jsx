@@ -45,6 +45,7 @@ const Header = () => {
     let res = await axios.post("/api/users/logout");
     if (res.status === 200) {
       dispatch({ type: "LOGOUT" });
+      localStorage.removeItem('twj')
       navigate("/login");
     }
   };

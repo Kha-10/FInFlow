@@ -16,10 +16,12 @@ import welcome from "../assets/welcome.svg";
 import axios from "@/helper/axios";
 import { useContext } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState(null);
+
+  const { toast } = useToast();
 
   const navigate = useNavigate();
   let { dispatch } = useContext(AuthContext);
@@ -30,17 +32,6 @@ export default function LoginPage() {
       password: "",
     },
   });
-
-  useEffect(() => {
-    if (errors) {
-      Object.entries(errors).forEach(([field, error]) => {
-        form.setError(field, {
-          type: error.type || "manual",
-          message: error.msg,
-        });
-      });
-    }
-  }, [errors, form]);
 
   useEffect(() => {
     // Check if the user's system prefers dark mode
@@ -67,19 +58,32 @@ export default function LoginPage() {
 
   const onSubmit = async (values) => {
     try {
-      setErrors(null);
+      toast({
+        title: "Logging in",
+        description: "Please wait a moment...",
+      });
       const res = await axios.post("/api/users/login", values);
       if (res.status === 200) {
         dispatch({ type: "LOGIN", payload: res.data.user });
         navigate("/");
+        toast({
+          title: `Welcome ${res.data.user.username}!`,
+          description: `Now you can track your expenses and purchases.`,
+          duration: 3000,
+          variant: "success",
+        });
       }
-      if(res.data?.token) {
-        localStorage.setItem('twj',res.data?.token)
+      if (res.data?.token) {
+        localStorage.setItem("twj", res.data?.token);
       }
-    console.log('gg',res.data);
     } catch (error) {
-      console.log(error);
-      setErrors(error.response.data?.error);
+      toast({
+        title: `Login failed!`,
+        description: error.response.data?.error,
+        duration: 3000,
+        variant: "error",
+      });
+      form.reset();
     }
   };
 
@@ -215,7 +219,6 @@ export default function LoginPage() {
                 </Button>
               </form>
             </Form>
-            {!!errors && <span className="text-red-500 text-sm">{errors}</span>}
             <div className="text-center text-sm text-muted-foreground">
               Don't have an account yet?{" "}
               <Link to="/register" className="text-btn hover:underline">

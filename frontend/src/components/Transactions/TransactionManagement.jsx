@@ -115,6 +115,10 @@ export default function TransactionManagement() {
 
   async function onDelete() {
     try {
+      toast({
+        title: "Deleting transaction",
+        description: "Please wait a moment...",
+      });
       const token = localStorage.getItem("twj");
       const res = await axios.delete(
         `/api/purchases/${deletingTransaction._id}`,
@@ -129,6 +133,7 @@ export default function TransactionManagement() {
           title: "Purchase deleted",
           description: "The Purchase has been deleted successfully.",
           duration: 3000,
+          variant: "success",
         });
         setPurchases((prevItems) =>
           prevItems.filter((item) => item._id !== deletingTransaction._id)
@@ -141,7 +146,7 @@ export default function TransactionManagement() {
         description: error.response.data
           ? error.response.data.msg
           : "There was an issue deleting the purchase. Please try again.",
-        status: "error",
+        variant: "error",
       });
     }
   }

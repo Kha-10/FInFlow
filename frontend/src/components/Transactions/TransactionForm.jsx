@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useState, useEffect, useRef } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -132,6 +132,10 @@ export default function TransactionForm({
       return false;
     }
     try {
+      toast({
+        title: "Adding transaction",
+        description: "Please wait a moment...",
+      });
       const token = localStorage.getItem("twj");
       const res = await axios.post("/api/purchases", updatedValues, {
         headers: {
@@ -144,6 +148,7 @@ export default function TransactionForm({
           title: "Purchase added",
           description: `${values.description} has been added to your purchase list.`,
           duration: 3000,
+          variant: "success",
         });
         setPurchases((prev) => [res.data, ...prev]);
         setIsSheetOpen(false);
@@ -156,7 +161,7 @@ export default function TransactionForm({
           ? error.response.data.msg
           : "There was an issue adding the purchase. Please try again.",
         duration: 3000,
-        status: "error",
+        variant: "error",
       });
     }
   }
