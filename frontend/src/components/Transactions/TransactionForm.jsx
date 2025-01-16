@@ -413,8 +413,8 @@ export default function TransactionForm({
                                 activeIndex === index &&
                                 itemlist?.length > 0 &&
                                 activeIndex !== null && (
-                                  <div className="absolute z-50 top-20 -left-5 w-full bg-background border rounded-md shadow-lg">
-                                    <ScrollArea className="max-h-60">
+                                  <div className="absolute z-50 top-20 -left-5 w-full h-[280px] bg-background border rounded-md shadow-lg overflow-y-auto">
+                                    <ScrollArea className="max-h-fit">
                                       {itemlist.map((item) => (
                                         <Button
                                           key={item._id}
