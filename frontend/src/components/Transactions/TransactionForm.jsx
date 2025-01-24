@@ -93,10 +93,10 @@ export default function TransactionForm({
   });
 
   const items = form.watch("items");
-  const totalAmount = items.reduce(
-    (sum, item) => sum + parseFloat(item.price),
-    0
-  );
+  const totalAmount = items.reduce((sum, item) => {
+    const price = parseFloat(item?.price || 0);
+    return sum + (isNaN(price) ? 0 : price);
+  }, 0);
 
   useEffect(() => {
     if (totalAmount > 0) {
@@ -623,7 +623,7 @@ export default function TransactionForm({
               <div className="flex justify-between items-center pt-4 border-t mt-6">
                 <span className="text-lg font-semibold">Total:</span>
                 <span className="text-lg font-semibold">
-                  ${parseFloat(totalAmount).toFixed(2)}
+                  ${!isNaN(totalAmount) ? totalAmount.toFixed(2) : "0.00"}
                 </span>
               </div>
             )}

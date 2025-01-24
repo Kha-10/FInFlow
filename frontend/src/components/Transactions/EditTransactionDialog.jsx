@@ -667,7 +667,7 @@ export default function EditTransactionDialog({
                   type="submit"
                   className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white"
                 >
-                  Add Purchase
+                  Update Purchase
                 </Button>
               </div>
             </form>

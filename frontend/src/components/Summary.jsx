@@ -1,27 +1,31 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowDownCircle, ArrowUpCircle, Wallet } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
+import { useContext } from "react";
+import { UserSettingsContext } from "@/contexts/UserSettingsContext";
 
 export default function Summary({ dayChartDatas, chartDatas }) {
- console.log("dayChartDatas",dayChartDatas);
- console.log("chartDatas",chartDatas);
+  let { currency } = useContext(UserSettingsContext);
   let totalCashIn = 0;
   let totalCashOut = 0;
+
   if (dayChartDatas?.length > 0) {
     totalCashIn = dayChartDatas
       // .filter((t) => t.transactionType === "income")
-      .reduce((total, t) => total + (t.income && t.income || 0), 0);
+      .reduce((total, t) => total + ((t.income && t.income) || 0), 0);
 
     totalCashOut = dayChartDatas
       // .filter((t) => t.transactionType === "outcome")
-      .reduce((total, t) => total + (t.outcome && t.outcome || 0), 0);
+      .reduce((total, t) => total + ((t.outcome && t.outcome) || 0), 0);
   } else {
     totalCashIn = chartDatas?.reduce(
-      (total, t) => total + (t.income && t.income || 0),
+      (total, t) => total + ((t.income && t.income) || 0),
       0
     );
 
     totalCashOut = chartDatas?.reduce(
-      (total, t) => total + (t.outcome && t.outcome || 0),
+      (total, t) => total + ((t.outcome && t.outcome) || 0),
       0
     );
   }
@@ -43,7 +47,8 @@ export default function Summary({ dayChartDatas, chartDatas }) {
           <div className="flex justify-between items-center">
             <div>
               <p className="text-2xl text-green-500 font-bold mb-1">
-                ${totalCashIn.toFixed(2)}
+                {formatCurrency(totalCashIn, currency)}
+                {/* ${totalCashIn.toFixed(2)} */}
               </p>
               <p className="text-sm">Total Income</p>
             </div>
@@ -58,7 +63,8 @@ export default function Summary({ dayChartDatas, chartDatas }) {
           <div className="flex justify-between items-center">
             <div>
               <p className="text-2xl text-red-500 font-bold mb-1">
-                ${totalCashOut.toFixed(2)}
+                {/* ${totalCashOut.toFixed(2)} */}
+                {formatCurrency(totalCashOut, currency)}
               </p>
               <p className="text-sm">Total Outcome</p>
             </div>
@@ -89,7 +95,8 @@ export default function Summary({ dayChartDatas, chartDatas }) {
                     : "text-green-500"
                 }`}
               >
-                ${balance.toFixed(2)}
+                {/* ${balance.toFixed(2)} */}
+                {formatCurrency(balance, currency)}
               </p>
               <p className="text-sm">Balance</p>
             </div>

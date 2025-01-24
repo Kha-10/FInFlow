@@ -46,13 +46,11 @@ import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from "react-router-dom";
 import TransactionSkeleton from "../Skeleton";
+import { formatCurrency } from "@/lib/utils";
+import { useContext } from "react";
+import { UserSettingsContext } from "@/contexts/UserSettingsContext";
 
 export default function TransactionManagement() {
-  const [filters, setFilters] = useState({
-    dateRange: undefined,
-    category: "all",
-    type: "all",
-  });
   const [purchases, setPurchases] = useState(null);
   const [categories, setCategories] = useState(null);
   const [items, setItems] = useState(null);
@@ -64,6 +62,7 @@ export default function TransactionManagement() {
     from: undefined,
     to: undefined,
   });
+  let { currency } = useContext(UserSettingsContext);
   const [loading, setLoading] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -299,11 +298,16 @@ export default function TransactionManagement() {
                               {purchase.transactionType === "income"
                                 ? "+"
                                 : "-"}
-                              $
+                              {/* $
                               {(purchase.amount || purchase.total) &&
                                 Number(
                                   purchase.amount || purchase.total
-                                ).toFixed(2)}
+                                ).toFixed(2)} */}
+                              {formatCurrency(
+                                (purchase.amount || purchase.total) &&
+                                  Number(purchase.amount || purchase.total),
+                                currency
+                              )}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               {purchase.items?.length >= 1

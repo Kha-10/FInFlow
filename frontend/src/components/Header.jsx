@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   MoonIcon,
   SunIcon,
@@ -18,16 +18,19 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useContext } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
+import { UserSettingsContext } from "@/contexts/UserSettingsContext";
 import axios from "@/helper/axios";
+import UserSettingsDialog from "./UserSettingsDialog";
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
   const { user, dispatch } = useContext(AuthContext);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  let { avatarColor } = useContext(UserSettingsContext);
 
   const navigate = useNavigate();
 
@@ -45,7 +48,7 @@ const Header = () => {
     let res = await axios.post("/api/users/logout");
     if (res.status === 200) {
       dispatch({ type: "LOGOUT" });
-      localStorage.removeItem('twj')
+      localStorage.removeItem("twj");
       navigate("/login");
     }
   };
@@ -85,10 +88,9 @@ const Header = () => {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="relative h-10 w-10 text-white hover:text-white rounded-full bg-blue-400 hover:bg-blue-400/90"
+                className={`relative h-10 w-10 text-white hover:text-white rounded-full ${avatarColor} hover:${avatarColor}/90`}
               >
                 <p>{user.username.charAt(0).toUpperCase()}</p>
-                {/* <p>gg</p> */}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -96,21 +98,19 @@ const Header = () => {
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
                     {user.username}
-                    {/* gg */}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {user.email}
-                    {/* gg */}
                   </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>
+                {/* <DropdownMenuItem>
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
+                </DropdownMenuItem> */}
+                <DropdownMenuItem onSelect={() => setIsSettingsOpen(true)}>
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
@@ -124,6 +124,17 @@ const Header = () => {
           </DropdownMenu>
         </div>
       </div>
+      <UserSettingsDialog
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        userInfo={user}
+        // onSave={(updatedInfo) => {
+        //   setUserInfo(updatedInfo);
+        //   onCurrencyChange(updatedInfo.currency);
+        //   // Here you would typically send this data to your backend
+        //   console.log("Saving user info:", updatedInfo);
+        // }}
+      />
     </header>
   );
 };

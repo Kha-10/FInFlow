@@ -79,7 +79,7 @@ export default function LoginPage() {
     } catch (error) {
       toast({
         title: `Login failed!`,
-        description: error.response.data?.error,
+        description: error.response?.data?.error,
         duration: 3000,
         variant: "error",
       });
