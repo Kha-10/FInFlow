@@ -80,7 +80,7 @@ export default function UserSettingsDialog({ isOpen, onClose, userInfo }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>User Settings</DialogTitle>
           <DialogDescription>
@@ -183,7 +183,7 @@ export default function UserSettingsDialog({ isOpen, onClose, userInfo }) {
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=open]:ring-2 data-[state=open]:ring-blue-500">
+                      <SelectTrigger className=" focus:ring-offset-0 focus:ring-0 focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=open]:ring-2 data-[state=open]:ring-blue-500">
                         <SelectValue placeholder="Select your preferred currency" />
                       </SelectTrigger>
                     </FormControl>
